@@ -1,0 +1,9 @@
+**/*.o
+**/*.e
+**/*.so
+**/*.exe
+**/vusphydro
+splinter/build/
+Hydro-master/outputfiles/
+Hydro-master/inputfiles/derivFile.dat
+Hydro-master/inputfiles/quantityFile.dat
