@@ -128,9 +128,9 @@ public:
 	void svoptimization2(int a,double tin,int & count);
 	
 	void conservation_entropy();
-//	void conservation();
-//	void conservation_E();
-//	void conservation_Ez();
+	void conservation();
+	void conservation_E();
+	void conservation_Ez();
 	void svconservation();
 	void svconservation_E();
 	void svconservation_Ez();
