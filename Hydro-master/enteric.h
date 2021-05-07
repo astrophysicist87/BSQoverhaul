@@ -36,28 +36,9 @@ std::vector<std::string> split(const std::string &s, char delim);
 std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems);
 
 // 2 dimension functions
-
-void readICs_gen(string &firstry, string &firstry2,int &_Ntable3, Particle<2> *&_p,double const& efcheck, int & numpart);
-
-void readICs_gen(string &firstry, int &_Ntable3, Particle<2> *&_p,double const& efcheck, int & numpart);
-void readICs_genUU(string &firstry,  int &_Ntable3,Particle<2> *&_p,double const& efcheck, int & numpart);
-void readICs_ebe(string &firstry,  int &_Ntable3,Particle<2> *&_p,double factor,double const& efcheck, int & numpart);
-void readICs_gebe(string &firstry,  int &_Ntable3,Particle<2> *&_p,double factor,double const& efcheck, int & numpart); // for giorgio
-void readICs_nebe(string &firstry,  int &_Ntable3,Particle<2> *&_p,double factor,double const& efcheck, int & numpart); // for nexus with flow
-double readICs_gl(string &firstry,  int &_Ntable3,Particle<2> *&_p,double factor,double const& efcheck, int & numpart) ;// ipglasma
-void readICs_glno(string &firstry,  int &_Ntable3,Particle<2> *&_p,double factor,double const& efcheck, int & numpart) ; //ipglasma no flow
 void readICs_tnt(string &firstry,  int &_Ntable3,Particle<2> *&_p,double factor,double const& efcheck, int & numpart, eos EOS); //trento (entropy density)
 
 // 3 dimension functions
-
-void readICs_gen(string &firstry,  string &firstry2, int &_Ntable3,Particle<3> *&_p,double const& efcheck, int & numpart);
-void readICs_gen(string &firstry,   int &_Ntable3, Particle<3> *&_p,double const& efcheck, int & numpart);
-void readICs_genUU(string &firstry,  int &_Ntable3,Particle<3> *&_p,double const& efcheck, int & numpart);
-void readICs_ebe(string &firstry,  int &_Ntable3,Particle<3> *&_p,double factor,double const& efcheck, int & numpart);
-void readICs_gebe(string &firstry,  int &_Ntable3,Particle<3> *&_p,double factor,double const& efcheck, int & numpart); // for giorgio
-void readICs_nebe(string &firstry,  int &_Ntable3,Particle<3> *&_p,double factor,double const& efcheck, int & numpart); // for nexus with flow
-double readICs_gl(string &firstry,  int &_Ntable3,Particle<3> *&_p,double factor,double const& efcheck, int & numpart); //ipglasma
-void readICs_glno(string &firstry,  int &_Ntable3,Particle<3> *&_p,double factor,double const& efcheck, int & numpart); //ipglasma no flow
 void readICs_tnt(string &firstry,  int &_Ntable3,Particle<3> *&_p,double factor,double const& efcheck, int & numpart, eos EOS); //trento (entropy density)
 
 
@@ -65,8 +46,6 @@ void readICs_tnt(string &firstry,  int &_Ntable3,Particle<3> *&_p,double factor,
 template <int D>
 void manualenter(_inputIC &ics, LinkList<D> &linklist)
 {
-  
-   
    
    string manf = ifolder+ics.man;
    istringstream manis (manf.c_str());
@@ -77,21 +56,6 @@ void manualenter(_inputIC &ics, LinkList<D> &linklist)
    int start,end; 
    string eos_s,eos_p,ic,outf,ictype,ic2,eostype,fvisc,low_switch;
    string table ("table");
-   string tableuu ("tableuu");
-   string separate ("separate");
-   string weight ("weight");
-   string bjorken ("bjorken");
-   string eventbyevent ("eventbyevent");
-   string giorgio ("giorgio");
-   string nexus ("nexus");
-   string average ("average");
-   string smooth ("smooth");
-   string glasma ("glasma");
-   string glasmanoflow ("glasmanoflow");
-   string hglasma ("hglasma");
-   string hglasmanoflow ("hglasmanoflow");
-   string hgiorgio ("hgiorgio");
-   string ideal ("ideal");
    string trento ("trento");
    int df;
   	if ((!manf.empty())&&(openmanf!= NULL)){
@@ -123,29 +87,19 @@ void manualenter(_inputIC &ics, LinkList<D> &linklist)
   	   ictype=charin;
   	   
   	   
-  	   if (ictype==hgiorgio){
-  	   ictype=giorgio;
-  	   hcor=1;}
-  	   else if (ictype==hglasma){
-  	   ictype=glasma;
-  	   fscanf(openmanf,"%i ",&hcor);
-  	   }
-  	   else if (ictype==hglasmanoflow){
-  	   ictype=glasmanoflow;
-  	   fscanf(openmanf,"%i ",&hcor);}
-  	   else hcor=0;
+  	   hcor=0;
   	   
   	
   	  
   	   
   	   if (ictype!=bjorken)
   	   {
-  	   if (ictype==average||ictype==eventbyevent||ictype==trento||ictype==giorgio||ictype==nexus||ictype==smooth||ictype==glasma||ictype==glasmanoflow)
+  	   if (ictype==trento)
   	   {
   	   	fscanf(openmanf,"%lf \n",&factor);  
   	   	linklist.factor=factor;
   	   	
-           }
+        }
   	   
   	  
   	   
@@ -158,7 +112,7 @@ void manualenter(_inputIC &ics, LinkList<D> &linklist)
   	   fscanf(openmanf,"%*s %s \n",charin);  	   
   	   outf=charin;
   	   
-  	   if (ictype==eventbyevent||ictype==trento||ictype==giorgio||ictype==nexus||ictype==glasma||ictype==glasmanoflow)
+  	   if (ictype==trento)
   	   {
   	   	fscanf(openmanf,"%d \n",&start);  
   	   	fscanf(openmanf,"%d \n",&end); 
@@ -177,11 +131,6 @@ void manualenter(_inputIC &ics, LinkList<D> &linklist)
            
 	   //           cout << "Event # " << linklist.start << " with fac="<< factor << endl;           
   	   
-  	   if (ictype==separate)
-  	   {
-  	   	fscanf(openmanf,"%s \n",charin);  	   
-  	   	ic2=charin;
-           }
            }
            fscanf(openmanf,"%*s %i \n",&df);  
            if (df!=0) // for df, analytical solution - no decays
@@ -213,14 +162,6 @@ void manualenter(_inputIC &ics, LinkList<D> &linklist)
   	   	DFO << "freezeouttemp: " << freezeoutT*0.1973 << endl;
   	   	
   	   	
-  	   	
-//  	   	string sampofol;
-//  	   	if (df==2) {
-//  	   	 	   
-//  	  	sampofol=outf;
-//  	   //	DFO << "output_folder: " << sampofol << endl;
-//  	   	}
-  	   	
   	   	while (fgets (charin, 100 ,openmanf)!= NULL )  DFO << charin ;
   	   	
   	   	DFO.close();
@@ -241,10 +182,6 @@ void manualenter(_inputIC &ics, LinkList<D> &linklist)
 		exit(1); 	
   	}
 
-
-	
-	
-  	
   	linklist.setv(fvisc);
   	linklist.eost=eostype;
   	linklist.cevent=0;
@@ -290,257 +227,35 @@ void manualenter(_inputIC &ics, LinkList<D> &linklist)
     Particle<D> *_p;
     int numpart,_Ntable3;
     
-  //  cout << "setting up SPH" << endl;
-       
-    
     linklist.gtyp=0;
-    if (ictype==weight)
-    {
-    	
-    	readICs_gen(ic,  _Ntable3, _p,efcheck,numpart);  
-    	
-    	_p[0].start(eostype);
-    	
-    	linklist.setup(it0,_Ntable3,h,_p,ics.dt,numpart);
-    	
-    	
-	cout << "number of sph particles=" << _Ntable3 << endl;
-    	
-    }
-    else if (ictype==separate)
-   {
- 	readICs_gen(ic, ic2, _Ntable3, _p,efcheck,numpart);
- 	linklist.setup(it0,_Ntable3,h,_p,ics.dt,numpart);
-   }
-   else if (ictype==bjorken)
-   {
-   	if ((fvisc=="shear")||(fvisc=="shear+bulk")||(fvisc=="bulk+shear"))
-		linklist.gubsershear(h);
-   	else
-   		linklist.gubser(h);
-   	
-   }
-   else if (ictype==tableuu)
-   {
-   	readICs_genUU(ic,  _Ntable3, _p,efcheck,numpart);
-    	linklist.setup(it0,_Ntable3,h,_p,ics.dt,numpart);
-   }
-   else if (ictype==eventbyevent)
-   {
-   	
-   	int count=linklist.end-linklist.start+1;
-   	linklist.ebe_folder=outf;
-   	string *filelist;
-   	filelist=new string[count];
-   	
-   	int j=0;
-   	for (int i=linklist.start;i<=linklist.end;i++)
-   	{
-   	filelist[j]= ic+"/ic"+convertInt(i)+".dat";
-   	j++;
-   	}
-   	linklist.filenames=filelist;
-   	linklist.fcount=count;
-   	linklist.fnum=linklist.start;
-   
-   	
-   	readICs_ebe(linklist.filenames[0],  _Ntable3, _p,factor,efcheck,  numpart);
-   	
-   	_p[0].start(eostype);
-    	linklist.setup(it0,_Ntable3,h,_p,ics.dt,numpart);
-    	/// compare linklist.gubser
-    	
-    	cout << "number of sph particles=" << _Ntable3 << endl;
-    	
-    	
-   }
-   else if (ictype==trento)
-     {
-       
-       int count=linklist.end-linklist.start+1;
-       linklist.ebe_folder=outf;
-       string *filelist;
-       filelist=new string[count];
-       
-       int j=0;
-       for (int i=linklist.start;i<=linklist.end;i++)
-	 {
-	   filelist[j]= ic+"/ic"+convertInt(i)+".dat";
-	   j++;
-	 }
-       linklist.filenames=filelist;
-       linklist.fcount=count;
-       linklist.fnum=linklist.start;
-   
-       
-       readICs_tnt(linklist.filenames[0],  _Ntable3, _p,factor,sfcheck,  numpart, EOS);
-       
-       _p[0].start(eostype);
-       linklist.setup(it0,_Ntable3,h,_p,ics.dt,numpart);
-       /// compare linklist.gubser
-       
-       cout << "number of sph particles=" << _Ntable3 << endl;
-       linklist.gtyp=5;
-       
-     }
-   else if (ictype==giorgio)
-   {
-   	
-   	
-   	int count=linklist.end-linklist.start+1;
-   	linklist.ebe_folder=outf;
-   	string *filelist;
-   	filelist=new string[count];
-   	
-   	int j=0;
-   	for (int i=linklist.start;i<=linklist.end;i++)
-   	{
-   	filelist[j]= ic+"/ic"+convertInt(i)+".dat";
-   	j++;
-   	}
-   	linklist.filenames=filelist;
-   	linklist.fcount=count;
-   	linklist.fnum=linklist.start;
-   
-   	
-   	readICs_gebe(linklist.filenames[0],  _Ntable3, _p,factor,efcheck,  numpart);   	
-   	
-    	linklist.setup(it0,_Ntable3,h,_p,ics.dt,numpart);
-    	
-    	/// compare linklist.gubser
-    	
-    	cout << "number of sph particles=" << _Ntable3 << endl;
-    	linklist.gtyp=1;
-    	
-    	
-   }
-   else if (ictype==nexus)
-   {
-   	
-   	
-   	int count=linklist.end-linklist.start+1;
-   	linklist.ebe_folder=outf;
-   	string *filelist;
-   	filelist=new string[count];
-   	
-   	int j=0;
-   	for (int i=linklist.start;i<=linklist.end;i++)
-   	{
-   	filelist[j]= ic+"/ic"+convertInt(i)+".dat";
-   	j++;
-   	}
-   	linklist.filenames=filelist;
-   	linklist.fcount=count;
-   	linklist.fnum=linklist.start;
-   
-   	
-   	readICs_nebe(linklist.filenames[0],  _Ntable3, _p,factor,efcheck,  numpart);   	
-   	
-    	linklist.setup(it0,_Ntable3,h,_p,ics.dt,numpart);
-    	
-    	/// compare linklist.gubser
-    	
-    	cout << "number of sph particles=" << _Ntable3 << endl;
-    	linklist.gtyp=2;
-    	
-    	
-   }
-   else if (ictype==glasma)
-   {
-   	
-   	
-   	int count=linklist.end-linklist.start+1;
-   	linklist.ebe_folder=outf;
-   	string *filelist;
-   	filelist=new string[count];
-   	
-   	int j=0;
-   	for (int i=linklist.start;i<=linklist.end;i++)
-   	{
-   	filelist[j]= ic+"/ic"+convertInt(i)+".dat";
-   	j++;
-   	}
-   	linklist.filenames=filelist;
-   	linklist.fcount=count;
-   	linklist.fnum=linklist.start;
-   
-   	
-   	linklist.gd2=readICs_gl(linklist.filenames[0],  _Ntable3, _p,factor,efcheck,  numpart);   	
-   	
-    	linklist.setup(it0,_Ntable3,h,_p,ics.dt,numpart);
-    	
-    	/// compare linklist.gubser
-    	
-    	cout << "number of sph particles=" << _Ntable3 << endl;
-    	linklist.gtyp=3;
-    	
-    	
-   }
-   else if (ictype==glasmanoflow)
-   {
-   	
-   	
-   	int count=linklist.end-linklist.start+1;
-   	linklist.ebe_folder=outf;
-   	string *filelist;
-   	filelist=new string[count];
-   	
-   	int j=0;
-   	for (int i=linklist.start;i<=linklist.end;i++)
-   	{
-   	filelist[j]= ic+"/ic"+convertInt(i)+".dat";
-   	j++;
-   	}
-   	linklist.filenames=filelist;
-   	linklist.fcount=count;
-   	linklist.fnum=linklist.start;
-   
-   	
-   	readICs_glno(linklist.filenames[0],  _Ntable3, _p,factor,efcheck,  numpart);   	
-   	
-    	linklist.setup(it0,_Ntable3,h,_p,ics.dt,numpart);
-    	
-    	/// compare linklist.gubser
-    	
-    	cout << "number of sph particles=" << _Ntable3 << endl;
-    	linklist.gtyp=4;
-    }
-   else if (ictype==average)
-   {
-   	   	
-   	linklist.average=1;
-   	linklist.ebe_folder=outf;
-   	string filelist=ic+("/dens2.dat");
-   	linklist.filenames=new string[1];
-   	linklist.filenames[0]=filelist;
-   	linklist.fcount=0;
-   
-   	
-   	readICs_ebe(linklist.filenames[0],  _Ntable3, _p,factor,efcheck,numpart);
-    	linklist.setup(it0,_Ntable3,h,_p,ics.dt,numpart);
-    	
-    	//cout << "averaged ICs" << endl;
-    	//cout << "number of sph particles=" << _Ntable3 << endl;
-    	
-    	
-   }
-   else if (ictype==smooth)
-   {
-   	   	
-   	linklist.average=1;
-   	linklist.ebe_folder=outf;
-   	linklist.filenames=new string[1];
-   	linklist.filenames[0]=ic;
-   	linklist.fcount=0;
-   
-   	
-   	readICs_ebe(linklist.filenames[0],  _Ntable3, _p,factor,efcheck,numpart);
-    	linklist.setup(it0,_Ntable3,h,_p,ics.dt,numpart);
-    	
-    	//cout << "averaged ICs" << endl;
-    	//cout << "number of sph particles=" << _Ntable3 << endl;
-    	
-   }
+	if (ictype==trento)
+	{
+		
+		int count=linklist.end-linklist.start+1;
+		linklist.ebe_folder=outf;
+		string *filelist;
+		filelist=new string[count];
+		
+		int j=0;
+		for (int i=linklist.start;i<=linklist.end;i++)
+		{
+			filelist[j]= ic+"/ic"+convertInt(i)+".dat";
+			j++;
+		}
+		linklist.filenames=filelist;
+		linklist.fcount=count;
+		linklist.fnum=linklist.start;
+		
+		
+		readICs_tnt(linklist.filenames[0],  _Ntable3, _p,factor,sfcheck,  numpart, EOS);
+		
+		_p[0].start(eostype);
+		linklist.setup(it0,_Ntable3,h,_p,ics.dt,numpart);
+		
+		cout << "number of sph particles=" << _Ntable3 << endl;
+		linklist.gtyp=5;
+		
+	}
 
     string name3=ofolder+linklist.ebe_folder+"/temp_ic"+convertInt(linklist.start)+".dat";
     ofstream PRINT(name3.c_str());
@@ -634,30 +349,20 @@ void manualenter(_inputIC &ics, LinkList<D> &linklist)
     }
     
    
-	if ((ictype==bjorken)||(ictype==eventbyevent)||(ictype==trento)||(ictype==average)||(ictype==smooth)||(ictype==giorgio)||(ictype==nexus)||(ictype==glasma)||(ictype==glasmanoflow))
+	if (ictype==trento)
    {
    	
    	linklist.updateIC();
-//cout << "optimization done" << endl;
    }
 
-   
    linklist.freezeset();
-
    
-   if ((fvisc=="bulk")&&ictype!=weight){
-	linklist.prints( );
-     linklist.etas_set();
-     }
-   else if ((fvisc=="bulk+shear")||(fvisc=="shear+bulk"))  
+   if ((fvisc=="bulk+shear")||(fvisc=="shear+bulk"))  
    {
-	   if (ictype!=bjorken) linklist.sv_set();
-	   else linklist.sv_setb();
+	   linklist.sv_set();
    }
     
     linklist.first=1;
-    
-
     
 }
 
@@ -668,18 +373,10 @@ template <int D>
 void nextevent(int i, LinkList<D> &linklist)
 {
 
-	
-   	
-
 	int numpart, _Ntable3;
 	Particle<D> *_p;
-	if (linklist.gtyp==0) readICs_ebe(linklist.filenames[i],  _Ntable3, _p,linklist.factor,linklist.efcheck,numpart);
-	else if (linklist.gtyp==1) readICs_gebe(linklist.filenames[i],  _Ntable3, _p,linklist.factor,linklist.efcheck,numpart);
-	else if (linklist.gtyp==2) readICs_nebe(linklist.filenames[i],  _Ntable3, _p,linklist.factor,linklist.efcheck,numpart);
-	else if (linklist.gtyp==3) linklist.gd2=readICs_gl(linklist.filenames[i],  _Ntable3, _p,linklist.factor,linklist.efcheck,numpart);
-	else if (linklist.gtyp==4) readICs_glno(linklist.filenames[i],  _Ntable3, _p,linklist.factor,linklist.efcheck,numpart);
-        else if (linklist.gtyp==5) readICs_tnt(linklist.filenames[i],  _Ntable3, _p,linklist.factor,linklist.sfcheck,numpart,linklist._p[0].EOS);
-    	linklist.setupnext(_Ntable3,_p,numpart);
+	if (linklist.gtyp==5) readICs_tnt(linklist.filenames[i],  _Ntable3, _p,linklist.factor,linklist.sfcheck,numpart,linklist._p[0].EOS);
+    linklist.setupnext(_Ntable3,_p,numpart);
     	
     		
 	for (int i=0;i<linklist.n();i++)
