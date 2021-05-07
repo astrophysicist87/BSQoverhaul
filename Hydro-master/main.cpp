@@ -49,9 +49,9 @@ int main (int argc, char *argv[])
 
 	switch ( linklist.visc )
 	{
-		case 0:	// ideal
-			Simulation(   ics.dt, linklist );
-			break;
+//		case 0:	// ideal
+//			Simulation(   ics.dt, linklist );
+//			break;
 		case 3: // shear+bulk
 			svSimulation( ics.dt, linklist );
 			break;
