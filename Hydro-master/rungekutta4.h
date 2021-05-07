@@ -9,142 +9,142 @@
 #include "particle.h"
 #include "eos.h"
 
-template <int D> 
-void rungeKutta2(double dx,void (*derivatives)( LinkList<D> &linklist), LinkList<D> &linklist )
-{
-	// creating arrays of vectors of the derivatives at each step
-	int N=linklist.n();
-	Vector<double,D> *u0,*r0;
-	u0=new Vector<double,D> [N];
-	r0=new Vector<double,D> [N];
-	
-	
-	linklist.rk2=1;
-	double t0=linklist.t;
-	for (int i=0; i<N; ++i) {
-		u0[i]=linklist._p[i].u;
-		r0[i]=linklist._p[i].r;
-	}
-	double E0=linklist.Ez;
-	
-	//	first step
-	(*derivatives)(linklist);
-	for (int i=0; i<N; ++i) {
-		linklist._p[i].u=u0[i]+0.5*dx*linklist._p[i].du_dt;
-		
-		linklist._p[i].r=r0[i]+0.5*dx*linklist._p[i].v;
-		
-	}
-	linklist.Ez=E0+0.5*dx*linklist.dEz;
-	linklist.t=t0+0.5*dx;
-	
-	//	second step
-	(*derivatives)(linklist);
-	for (int i=0; i<N; ++i) {
-		linklist._p[i].u=u0[i]+	dx*linklist._p[i].du_dt;
-		
-		linklist._p[i].r=r0[i]+dx*linklist._p[i].v;
-			
-	}
-	linklist.Ez=E0+dx*linklist.dEz;
-	linklist.t=t0+dx;
-	
-	delete [] u0;
-	delete [] r0;
-}
-
-template <int D> 
-void rungeKutta4(double dx,void (*derivatives)( LinkList<D> &linklist), LinkList<D> &linklist )
-{
-	// creating arrays of vectors of the derivatives at each step
-	int N=linklist.n();
-	Vector<double,D> *u0,*r0;
-	u0=new Vector<double,D> [N];
-	r0=new Vector<double,D> [N];
-	double E0,E1,E2,E3,E4,t0;
-//	double *etasig0;
-//	etasig0=new double [N];
-	//double Esub;
-	
-	linklist.rk2=1;
-	t0=linklist.t;
-	for (int i=0; i<N; ++i) {
-		u0[i]=linklist._p[i].u;
-		r0[i]=linklist._p[i].r;
-//		etasig0[i]=linklist._p[i].eta_sigma;
-	}
-	E0=linklist.Ez;
-	
-	//	first step
-	(*derivatives)(linklist);
-	for (int i=0; i<N; ++i) {
-		linklist._p[i].k1=dx*linklist._p[i].du_dt;
-		linklist._p[i].u=u0[i]+0.5*linklist._p[i].k1;
-		
-		linklist._p[i].r1=dx*linklist._p[i].v;
-		linklist._p[i].r=r0[i]+0.5*linklist._p[i].r1;
-		
-//		linklist._p[i].es1=dx*linklist._p[i].detasigma_dt;
-//		linklist._p[i].eta_sigma=es0[i]+(1./2.0)*linklist._p[i].es1;
-		
-	}
-	E1=dx*linklist.dEz;
-	linklist.t=t0+0.5*dx;
-	
-	//	second step
-	(*derivatives)(linklist);
-	for (int i=0; i<N; ++i) {
-		linklist._p[i].k2=dx*linklist._p[i].du_dt;
-		linklist._p[i].u=u0[i]+0.5*linklist._p[i].k2;
-		
-		linklist._p[i].r2=dx*linklist._p[i].v;
-		linklist._p[i].r=r0[i]+0.5*linklist._p[i].r2;
-		
-//		linklist._p[i].es2=dx*linklist._p[i].detasigma_dt;
-//		linklist._p[i].eta_sigma=es0[i]+(1./2.0)*linklist._p[i].es2;		
-	}
-	E2=dx*linklist.dEz;
-	
-	//	third step
-	(*derivatives)(linklist);
-	for (int i=0; i<N; ++i) {
-		linklist._p[i].k3=dx*linklist._p[i].du_dt;
-		linklist._p[i].u=u0[i]+linklist._p[i].k3;
-		
-		linklist._p[i].r3=dx*linklist._p[i].v;
-		linklist._p[i].r=r0[i]+linklist._p[i].r3;
-		
-//		linklist._p[i].es3=dx*linklist._p[i].detasigma_dt;
-//		linklist._p[i].eta_sigma=es0[i]+(1./2.0)*linklist._p[i].es3;		
-	}
-	E3=dx*linklist.dEz;
-	linklist.t=t0+dx;
-	
-	//	fourth step
-	(*derivatives)(linklist);
-	for (int i=0; i<N; ++i) {
-		linklist._p[i].k4=dx*linklist._p[i].du_dt;
-		
-		linklist._p[i].r4=dx*linklist._p[i].v;
-		
-//		linklist._p[i].es4=dx*linklist._p[i].detasigma_dt;		
-		
-		// sum the weighted steps into yf and return the final y values
-		linklist._p[i].u=u0[i]+(1./6.0)*linklist._p[i].k1+(1./3.0)*linklist._p[i].k2+(1./3.0)*linklist._p[i].k3+(1./6.0)*linklist._p[i].k4;
-		
-		linklist._p[i].r=r0[i]+(1./6.0)*linklist._p[i].r1+(1./3.0)*linklist._p[i].r2+(1./3.0)*linklist._p[i].r3+(1./6.0)*linklist._p[i].r4;
-		
-		
-		
-//		linklist._p[i].eta_sigma=es0[i]+(1./6.0)*linklist._p[i].es1+(1./3.0)*linklist._p[i].es2+(1./3.0)*linklist._p[i].es3+(1./6.0)*linklist._p[i].es4;		
-	}
-	E4=dx*linklist.dEz;	
-	linklist.Ez=E0+E1/6.+E2/3.+E3/3.+E4/6.;
-	
-	delete [] u0;
-	delete [] r0;
-	
-}
+//template <int D> 
+//void rungeKutta2(double dx,void (*derivatives)( LinkList<D> &linklist), LinkList<D> &linklist )
+//{
+//	// creating arrays of vectors of the derivatives at each step
+//	int N=linklist.n();
+//	Vector<double,D> *u0,*r0;
+//	u0=new Vector<double,D> [N];
+//	r0=new Vector<double,D> [N];
+//	
+//	
+//	linklist.rk2=1;
+//	double t0=linklist.t;
+//	for (int i=0; i<N; ++i) {
+//		u0[i]=linklist._p[i].u;
+//		r0[i]=linklist._p[i].r;
+//	}
+//	double E0=linklist.Ez;
+//	
+//	//	first step
+//	(*derivatives)(linklist);
+//	for (int i=0; i<N; ++i) {
+//		linklist._p[i].u=u0[i]+0.5*dx*linklist._p[i].du_dt;
+//		
+//		linklist._p[i].r=r0[i]+0.5*dx*linklist._p[i].v;
+//		
+//	}
+//	linklist.Ez=E0+0.5*dx*linklist.dEz;
+//	linklist.t=t0+0.5*dx;
+//	
+//	//	second step
+//	(*derivatives)(linklist);
+//	for (int i=0; i<N; ++i) {
+//		linklist._p[i].u=u0[i]+	dx*linklist._p[i].du_dt;
+//		
+//		linklist._p[i].r=r0[i]+dx*linklist._p[i].v;
+//			
+//	}
+//	linklist.Ez=E0+dx*linklist.dEz;
+//	linklist.t=t0+dx;
+//	
+//	delete [] u0;
+//	delete [] r0;
+//}
+//
+//template <int D> 
+//void rungeKutta4(double dx,void (*derivatives)( LinkList<D> &linklist), LinkList<D> &linklist )
+//{
+//	// creating arrays of vectors of the derivatives at each step
+//	int N=linklist.n();
+//	Vector<double,D> *u0,*r0;
+//	u0=new Vector<double,D> [N];
+//	r0=new Vector<double,D> [N];
+//	double E0,E1,E2,E3,E4,t0;
+////	double *etasig0;
+////	etasig0=new double [N];
+//	//double Esub;
+//	
+//	linklist.rk2=1;
+//	t0=linklist.t;
+//	for (int i=0; i<N; ++i) {
+//		u0[i]=linklist._p[i].u;
+//		r0[i]=linklist._p[i].r;
+////		etasig0[i]=linklist._p[i].eta_sigma;
+//	}
+//	E0=linklist.Ez;
+//	
+//	//	first step
+//	(*derivatives)(linklist);
+//	for (int i=0; i<N; ++i) {
+//		linklist._p[i].k1=dx*linklist._p[i].du_dt;
+//		linklist._p[i].u=u0[i]+0.5*linklist._p[i].k1;
+//		
+//		linklist._p[i].r1=dx*linklist._p[i].v;
+//		linklist._p[i].r=r0[i]+0.5*linklist._p[i].r1;
+//		
+////		linklist._p[i].es1=dx*linklist._p[i].detasigma_dt;
+////		linklist._p[i].eta_sigma=es0[i]+(1./2.0)*linklist._p[i].es1;
+//		
+//	}
+//	E1=dx*linklist.dEz;
+//	linklist.t=t0+0.5*dx;
+//	
+//	//	second step
+//	(*derivatives)(linklist);
+//	for (int i=0; i<N; ++i) {
+//		linklist._p[i].k2=dx*linklist._p[i].du_dt;
+//		linklist._p[i].u=u0[i]+0.5*linklist._p[i].k2;
+//		
+//		linklist._p[i].r2=dx*linklist._p[i].v;
+//		linklist._p[i].r=r0[i]+0.5*linklist._p[i].r2;
+//		
+////		linklist._p[i].es2=dx*linklist._p[i].detasigma_dt;
+////		linklist._p[i].eta_sigma=es0[i]+(1./2.0)*linklist._p[i].es2;		
+//	}
+//	E2=dx*linklist.dEz;
+//	
+//	//	third step
+//	(*derivatives)(linklist);
+//	for (int i=0; i<N; ++i) {
+//		linklist._p[i].k3=dx*linklist._p[i].du_dt;
+//		linklist._p[i].u=u0[i]+linklist._p[i].k3;
+//		
+//		linklist._p[i].r3=dx*linklist._p[i].v;
+//		linklist._p[i].r=r0[i]+linklist._p[i].r3;
+//		
+////		linklist._p[i].es3=dx*linklist._p[i].detasigma_dt;
+////		linklist._p[i].eta_sigma=es0[i]+(1./2.0)*linklist._p[i].es3;		
+//	}
+//	E3=dx*linklist.dEz;
+//	linklist.t=t0+dx;
+//	
+//	//	fourth step
+//	(*derivatives)(linklist);
+//	for (int i=0; i<N; ++i) {
+//		linklist._p[i].k4=dx*linklist._p[i].du_dt;
+//		
+//		linklist._p[i].r4=dx*linklist._p[i].v;
+//		
+////		linklist._p[i].es4=dx*linklist._p[i].detasigma_dt;		
+//		
+//		// sum the weighted steps into yf and return the final y values
+//		linklist._p[i].u=u0[i]+(1./6.0)*linklist._p[i].k1+(1./3.0)*linklist._p[i].k2+(1./3.0)*linklist._p[i].k3+(1./6.0)*linklist._p[i].k4;
+//		
+//		linklist._p[i].r=r0[i]+(1./6.0)*linklist._p[i].r1+(1./3.0)*linklist._p[i].r2+(1./3.0)*linklist._p[i].r3+(1./6.0)*linklist._p[i].r4;
+//		
+//		
+//		
+////		linklist._p[i].eta_sigma=es0[i]+(1./6.0)*linklist._p[i].es1+(1./3.0)*linklist._p[i].es2+(1./3.0)*linklist._p[i].es3+(1./6.0)*linklist._p[i].es4;		
+//	}
+//	E4=dx*linklist.dEz;	
+//	linklist.Ez=E0+E1/6.+E2/3.+E3/3.+E4/6.;
+//	
+//	delete [] u0;
+//	delete [] r0;
+//	
+//}
 
 // SHEAR VISCOSITY
 

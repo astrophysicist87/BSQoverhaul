@@ -18,69 +18,69 @@ using namespace std;
 #include "output.h"
 
 
-void Simulation(double dt,LinkList<2> &linklist)
-{
-	cout << "Ready to start hydrodynamics\n";
-	
-	
-	 linklist.frzc=0;
-	 
-	 linklist.cf=0;
-	 	
-	
-	Output<2> out(linklist); // sets up output
-	
-	linklist.t=linklist.t0;
-	
-	linklist.Ez=0;
-	
-	if ((linklist.qmf==1)||(linklist.qmf==3)) {
-	out.eprofile(linklist);
-	cout << "printed first timestep" << endl;
-	}
-	else if (linklist.qmf==2){
-	out.eprofile(linklist);
-	cout << "printed first timestep" << endl;
-	exit(1);
-	}
-	else if (linklist.qmf==4){
-	  out.eccout(linklist);
-          cout << "eccentricity printed" << endl;
-        }
-	
-
-	while ((linklist.t<linklist.tend)&&(linklist.number_part<linklist.n())) {
-		
-		 linklist.cfon=1;
- 	    rungeKutta2<2>(dt,&idealhydro3<2>,linklist);  // slower method, more accurate	
- 	    
-	    if (linklist.cf>0) out.FOprint(linklist); // prints out frozen out SPH particles
-	    
- 	    //if you add more points to print off you must also change LinkList<D>::setup and multiply steps=floor(tend-t0)+1; by the extra number of print offs / 1fm/c
- 
-	    if (linklist.qmf==3){
-	    double tsub=linklist.t-floor(linklist.t);
- 	    if (tsub<(0.0+dt*0.99)||(tsub>=1-+dt*0.99)) // uncomment if you want to observe energydensity profile, conservation of energy or do a Gubser check 	    
- 	    {
-		cout << "t=" << linklist.t <<endl;  // outputs time step
- 	    	out.eprofile(linklist);   // energy density profile
- 	    	
- 	    } 	
- 	    else if ((tsub<(0.5+dt*0.5))&&(tsub>=(0.5-+dt*0.5))) // uncomment if you want to observe energydensity profile, conservation of energy or do a Gubser check
- 	    {
-		cout << "t=" <<  linklist.t <<endl;  // outputs time step
- 	    	out.eprofile(linklist);   // energy density profile
- 	    	
- 	    }   
-
-	    }
-  	  
-  	  
-	}
-
-	cout << "done" << endl;
-	linklist.endEV();
-}
+//void Simulation(double dt,LinkList<2> &linklist)
+//{
+//	cout << "Ready to start hydrodynamics\n";
+//	
+//	
+//	 linklist.frzc=0;
+//	 
+//	 linklist.cf=0;
+//	 	
+//	
+//	Output<2> out(linklist); // sets up output
+//	
+//	linklist.t=linklist.t0;
+//	
+//	linklist.Ez=0;
+//	
+//	if ((linklist.qmf==1)||(linklist.qmf==3)) {
+//	out.eprofile(linklist);
+//	cout << "printed first timestep" << endl;
+//	}
+//	else if (linklist.qmf==2){
+//	out.eprofile(linklist);
+//	cout << "printed first timestep" << endl;
+//	exit(1);
+//	}
+//	else if (linklist.qmf==4){
+//	  out.eccout(linklist);
+//          cout << "eccentricity printed" << endl;
+//        }
+//	
+//
+//	while ((linklist.t<linklist.tend)&&(linklist.number_part<linklist.n())) {
+//		
+//		 linklist.cfon=1;
+// 	    rungeKutta2<2>(dt,&idealhydro3<2>,linklist);  // slower method, more accurate	
+// 	    
+//	    if (linklist.cf>0) out.FOprint(linklist); // prints out frozen out SPH particles
+//	    
+// 	    //if you add more points to print off you must also change LinkList<D>::setup and multiply steps=floor(tend-t0)+1; by the extra number of print offs / 1fm/c
+// 
+//	    if (linklist.qmf==3){
+//	    double tsub=linklist.t-floor(linklist.t);
+// 	    if (tsub<(0.0+dt*0.99)||(tsub>=1-+dt*0.99)) // uncomment if you want to observe energydensity profile, conservation of energy or do a Gubser check 	    
+// 	    {
+//		cout << "t=" << linklist.t <<endl;  // outputs time step
+// 	    	out.eprofile(linklist);   // energy density profile
+// 	    	
+// 	    } 	
+// 	    else if ((tsub<(0.5+dt*0.5))&&(tsub>=(0.5-+dt*0.5))) // uncomment if you want to observe energydensity profile, conservation of energy or do a Gubser check
+// 	    {
+//		cout << "t=" <<  linklist.t <<endl;  // outputs time step
+// 	    	out.eprofile(linklist);   // energy density profile
+// 	    	
+// 	    }   
+//
+//	    }
+//  	  
+//  	  
+//	}
+//
+//	cout << "done" << endl;
+//	linklist.endEV();
+//}
 
 void svSimulation(double dt,LinkList<2> &linklist)
 {
@@ -130,102 +130,102 @@ void svSimulation(double dt,LinkList<2> &linklist)
 }
 
 
-template <int D> 
-void idealhydro3(LinkList<D>  &linklist) // ideal Equations of motion, only set up completely for 2+1 at the moment
-{
-     
-     
-     linklist.initiate();  // initiates linklist
-     
-     	
-     	for(int i=0; i<linklist.n();i++)
-	{
-		 linklist.optimization(i); // calculates entropy density
-	}
-	 
-	int curfrz=0;	
-	for(int i=0; i<linklist.n(); i++) 
-	{
-                 //  Computes gamma and velocity
-                 
-        	linklist._p[i].calc(linklist.t); // calculates gamma, flow vectors, and updates EOS
-        	
-        	linklist._p[i].returnA(); // returns A form EOM
-//        	if(linklist._p[i].EOS.s() < 0)
-        	if (linklist.cfon==1) linklist._p[i].frzcheck(linklist.t,curfrz,linklist.n()); // checks if SPH particles have frozen out
-        	
-		
-	}
-	
-	if (linklist.cfon==1) // creates list of frozen out SPH particles
-	{
-	linklist.number_part+=curfrz;	
-	linklist.list.resize(curfrz);
-	}
-	if (linklist.rk2==1) linklist.conservation();	// calculates conservation of energy, only on first Runge kutta step
-			
-	int m=0;
-	for(int i=0; i<linklist.n();i++)
-	{	
-		//      Computes gradients to obtain dsigma/dt
-		linklist.optimization2(i);
-		linklist._p[i].sigset(linklist.t); // returns another value for EOM
-		if ((linklist._p[i].Freeze==3)&&(linklist.cfon==1)) // if SPH particles have remained frozen out after two time steps, allows to freezeout
-		{
-			linklist.list[m]=i;
-			linklist._p[i].Freeze=4;
-			++m;
-		}
-		
-	}
-	
-	linklist.conservation_Ez(); // calculates dEz for conservation of Energy
-	if (linklist.first==1) //checks if t=t0, if so sets the initial energy E0
-	{
-		linklist.conservation_entropy();
-		linklist.conservation_E();				
-	}
-	
-	
-	
-		//calculate matrix elements		
-	for(int i=0; i<linklist.n();i++)
-	{	
-	
-		// set the Mass and the Force matrix
-		double *M,*F;
-     		M=new double[D*D];
-     		F=new double[D];
-		M[0]=linklist._p[i].Agam*linklist._p[i].u.x[0]*linklist._p[i].u.x[0]+linklist._p[i].EOS.w()*linklist._p[i].gamma;
-		M[3]=linklist._p[i].Agam*linklist._p[i].u.x[1]*linklist._p[i].u.x[1]+linklist._p[i].EOS.w()*linklist._p[i].gamma;
-		M[1]=linklist._p[i].Agam*linklist._p[i].u.x[0]*linklist._p[i].u.x[1];
-		
-		F[0]=linklist._p[i].Agam2*linklist._p[i].u.x[0]-linklist._p[i].gradP.x[0];
-		F[1]=linklist._p[i].Agam2*linklist._p[i].u.x[1]-linklist._p[i].gradP.x[1];
-		
-	
-		
-		
-		double det=M[0]*M[3]-M[1]*M[1]; // inverts matrix
-		double MI[4];
-		MI[0]=M[3]/det;
-		MI[1]=-M[1]/det;
-		MI[3]=M[0]/det;
-		linklist._p[i].du_dt.x[0]=F[0]*MI[0]+F[1]*MI[1];
-		linklist._p[i].du_dt.x[1]=F[0]*MI[1]+F[1]*MI[3];
-		
-		
-		
-		linklist._p[i].div_u = (1./ linklist._p[i].gamma)*inner( linklist._p[i].u, linklist._p[i].du_dt) - ( linklist._p[i].gamma/ linklist._p[i].sigma)* linklist._p[i].dsigma_dt ;
-		
-		delete [] M;
-		delete [] F;
-			
-	}
-	if (linklist.cfon==1) linklist.freezeout(curfrz); // calculates normals from freezeout hypersurface
-	
-	linklist.destroy();
- }
+//template <int D> 
+//void idealhydro3(LinkList<D>  &linklist) // ideal Equations of motion, only set up completely for 2+1 at the moment
+//{
+//     
+//     
+//     linklist.initiate();  // initiates linklist
+//     
+//     	
+//     	for(int i=0; i<linklist.n();i++)
+//	{
+//		 linklist.optimization(i); // calculates entropy density
+//	}
+//	 
+//	int curfrz=0;	
+//	for(int i=0; i<linklist.n(); i++) 
+//	{
+//                 //  Computes gamma and velocity
+//                 
+//        	linklist._p[i].calc(linklist.t); // calculates gamma, flow vectors, and updates EOS
+//        	
+//        	linklist._p[i].returnA(); // returns A form EOM
+////        	if(linklist._p[i].EOS.s() < 0)
+//        	if (linklist.cfon==1) linklist._p[i].frzcheck(linklist.t,curfrz,linklist.n()); // checks if SPH particles have frozen out
+//        	
+//		
+//	}
+//	
+//	if (linklist.cfon==1) // creates list of frozen out SPH particles
+//	{
+//	linklist.number_part+=curfrz;	
+//	linklist.list.resize(curfrz);
+//	}
+//	if (linklist.rk2==1) linklist.conservation();	// calculates conservation of energy, only on first Runge kutta step
+//			
+//	int m=0;
+//	for(int i=0; i<linklist.n();i++)
+//	{	
+//		//      Computes gradients to obtain dsigma/dt
+//		linklist.optimization2(i);
+//		linklist._p[i].sigset(linklist.t); // returns another value for EOM
+//		if ((linklist._p[i].Freeze==3)&&(linklist.cfon==1)) // if SPH particles have remained frozen out after two time steps, allows to freezeout
+//		{
+//			linklist.list[m]=i;
+//			linklist._p[i].Freeze=4;
+//			++m;
+//		}
+//		
+//	}
+//	
+//	linklist.conservation_Ez(); // calculates dEz for conservation of Energy
+//	if (linklist.first==1) //checks if t=t0, if so sets the initial energy E0
+//	{
+//		linklist.conservation_entropy();
+//		linklist.conservation_E();				
+//	}
+//	
+//	
+//	
+//		//calculate matrix elements		
+//	for(int i=0; i<linklist.n();i++)
+//	{	
+//	
+//		// set the Mass and the Force matrix
+//		double *M,*F;
+//     		M=new double[D*D];
+//     		F=new double[D];
+//		M[0]=linklist._p[i].Agam*linklist._p[i].u.x[0]*linklist._p[i].u.x[0]+linklist._p[i].EOS.w()*linklist._p[i].gamma;
+//		M[3]=linklist._p[i].Agam*linklist._p[i].u.x[1]*linklist._p[i].u.x[1]+linklist._p[i].EOS.w()*linklist._p[i].gamma;
+//		M[1]=linklist._p[i].Agam*linklist._p[i].u.x[0]*linklist._p[i].u.x[1];
+//		
+//		F[0]=linklist._p[i].Agam2*linklist._p[i].u.x[0]-linklist._p[i].gradP.x[0];
+//		F[1]=linklist._p[i].Agam2*linklist._p[i].u.x[1]-linklist._p[i].gradP.x[1];
+//		
+//	
+//		
+//		
+//		double det=M[0]*M[3]-M[1]*M[1]; // inverts matrix
+//		double MI[4];
+//		MI[0]=M[3]/det;
+//		MI[1]=-M[1]/det;
+//		MI[3]=M[0]/det;
+//		linklist._p[i].du_dt.x[0]=F[0]*MI[0]+F[1]*MI[1];
+//		linklist._p[i].du_dt.x[1]=F[0]*MI[1]+F[1]*MI[3];
+//		
+//		
+//		
+//		linklist._p[i].div_u = (1./ linklist._p[i].gamma)*inner( linklist._p[i].u, linklist._p[i].du_dt) - ( linklist._p[i].gamma/ linklist._p[i].sigma)* linklist._p[i].dsigma_dt ;
+//		
+//		delete [] M;
+//		delete [] F;
+//			
+//	}
+//	if (linklist.cfon==1) linklist.freezeout(curfrz); // calculates normals from freezeout hypersurface
+//	
+//	linklist.destroy();
+// }
  
 
  template <int D> 

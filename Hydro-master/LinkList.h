@@ -147,9 +147,7 @@ public:
 	void interpolate(int curfrz);
 	void vinterpolate(int curfrz);
 	void svinterpolate(int curfrz);
-	//void normals(int curfrz);
 	void freezeset();
-	void smoothopt(int a);
 	void optint(int a, double & T00,  double & Tx0);
 	
 	
@@ -160,17 +158,11 @@ public:
 	double ux(double t, double x, double y);
 	double uy(double t, double x, double y);
 	void updateIC();
-//	void p_anis(int &in);
-//	void vp_anis(int &in);
-//	void s_anis(int in);
-//	void averages();
-//	void v_anis();
 	void setv(string vtype);
 	void etas_set();
 	void sv_set();
 	void sv_setb();
 	void endEV();
-//	void printsw();
 	void setshear();
 	void prints(); //possibly not needed?
 	
@@ -207,25 +199,10 @@ void LinkList<D>::setup(double it0, int ntot,double h, Particle<D> *_pin,double 
 	dael=new Vector<int,D>[_n];
 	steps=100*(floor(tend-t0)+1);
 	
-//	ep1=new double [steps];
-//	ep2=new double [steps];
-//	ec1=new double [steps];
-//	ec2=new double [steps];
-//	tsave=new double [steps];
-	
 	dt=dtsave;
-//	for (int i=0;i<steps;i++)
-//	{
-//		ep1[i]=0.;
-//		ep2[i]=0.;
-//		ec1[i]=0.;
-//		ec2[i]=0.;
-//	}
 	
 	number_part=numpart;
-	avgetasig=0.;
-	//sFO=_p[0].EOS.s_terms_T(freezeoutT);
-	
+	avgetasig=0.;	
 }
 
 
@@ -251,23 +228,14 @@ void LinkList<D>::prints( )
 
 template <int D>
 void LinkList<D>::endEV()
-{
-	//delete [] _p;
-	
+{	
 	delete [] link;
-	
-	delete [] dael;
-	
+	delete [] dael;	
 }
 
 template <int D>
 LinkList<D>::~LinkList()
 {
-//	delete [] ep1;
-//	delete [] ep2;
-//	delete [] ec1;
-//	delete [] ec2;
-//	delete [] tsave;
 }
 
 template <int D>
@@ -298,9 +266,6 @@ int LinkList<D>::triToSum(Vector<int,D>  dael, Vector<int,D>  size)
 template <int D>
 void LinkList<D>::freezeout(int curfrz)
 {
-	
-    
-    
     if (frzc==0)
     {
     	taupp=t;	
@@ -467,188 +432,10 @@ void LinkList<D>::interpolate(int curfrz)
 
 
 
-template <int D>
-void LinkList<D>::vfreezeout(int curfrz)
-{
-	
-    
-    if (frzc==0)
-    {
-    	taupp=t;	
-    	frzc=1;
-    	for (int i=0; i<_n; i++) {
-    	
-    	
-    	_p[i].frz2.r=_p[i].r;
-    	_p[i].frz2.u=_p[i].u;
-    	_p[i].frz2.sigma=_p[i].sigma;
-    	_p[i].frz2.T=_p[i].EOS.T();
-    	_p[i].frz2.bulk=_p[i].bigPI ;
-    	_p[i].frz2.theta=_p[i].div_u+_p[i].gamma/t;
-    	_p[i].frz2.gradP=_p[i].gradP;
-    	}
-    	
-    }
-    else if (frzc==1)
-    {    		
-   	taup=t;
-    	frzc=2;
-    	for (int i=0; i<_n; i++) {
-    	    	
-    	_p[i].frz1.r=_p[i].r;
-    	_p[i].frz1.u=_p[i].u;
-    	_p[i].frz1.sigma=_p[i].sigma;
-    	_p[i].frz1.T=_p[i].EOS.T();
-    	_p[i].frz1.bulk=_p[i].bigPI ;
-    	_p[i].frz1.theta=_p[i].div_u+_p[i].gamma/t;
-    	_p[i].frz1.gradP=_p[i].gradP;
-    	}
-
-	divTtemp=new double [curfrz];
-    	divT=new Vector<double,D> [curfrz];
-    	gsub=new double [curfrz];
-    	uout=new Vector<double,D> [curfrz];    
-    	swsub=new double [curfrz];
-    	bulksub=new double [curfrz];
-    	tlist=new double [curfrz];
-    	rsub=new Vector<double,D> [curfrz];
-
-	if (curfrz>0) 
-    		vinterpolate(curfrz);
-    	else 
-    		cf=0;
-    	 
-    }
-    else
-    {
-    	
-    	
-    	tau=t;
-    	
-    	divTtemp=new double [curfrz];
-    	divT=new Vector<double,D> [curfrz];
-    	gsub=new double [curfrz];
-    	uout=new Vector<double,D> [curfrz];
-    	swsub=new double [curfrz];
-    	bulksub=new double [curfrz];
-    	tlist=new double [curfrz];
-    	rsub=new Vector<double,D> [curfrz];
-    	
-    	
-    	if (curfrz>0) 
-    		vinterpolate(curfrz);
-    	else 
-    		cf=0;
-    	
-    	
-    	//sets up the variables for the next time step
-    	for (int i=0; i<_n; i++) {
-    	_p[i].frz2=_p[i].frz1;
-    	
-    	
-    	_p[i].frz1.r=_p[i].r;
-    	_p[i].frz1.u=_p[i].u;
-    	_p[i].frz1.sigma=_p[i].sigma;
-    	_p[i].frz1.T=_p[i].EOS.T();
-    	_p[i].frz1.bulk=_p[i].bigPI ;
-    	_p[i].frz1.theta=_p[i].div_u+_p[i].gamma/t;
-    	_p[i].frz1.gradP=_p[i].gradP;
-    	}
-    	taupp=taup;
-    	taup=tau;
-    }
-    cfon=0;
-}
-
-
-
-template <int D>
-void LinkList<D>::vinterpolate(int curfrz)
-{
-	
-	sFO.resize(curfrz,0);
-	Tfluc.resize(curfrz,0);
-	for (int j=0;j<curfrz;j++)
-	{
-		int i;
-		double thetasub;
-		Vector<double,D> gradPsub;
-		i=list[j];
-		
-		
-		int swit=0;
-		if (abs(_p[i].frz1.T-freezeoutT)<abs(_p[i].frz2.T-freezeoutT)) swit=1;
-		else swit=2;
-
-		double sigsub;
-		if (swit==1){
-			tlist[j]=taup;
-			rsub[j]=_p[i].frz1.r;
-			uout[j]=_p[i].frz1.u;
-			bulksub[j]=_p[i].frz1.bulk;			
-		
-			gradPsub=_p[i].frz1.gradP;			
-			sigsub=_p[i].frz1.sigma;
-			thetasub=_p[i].frz1.theta;
-			Tfluc[j]=_p[i].frz1.T;
-		}
-		else if (swit==2){
-			tlist[j]=taupp;
-			rsub[j]=_p[i].frz2.r;
-			uout[j]=_p[i].frz2.u;
-			bulksub[j]=_p[i].frz2.bulk;
-					
-			gradPsub=_p[i].frz2.gradP;			
-			sigsub=_p[i].frz2.sigma;
-			thetasub=_p[i].frz2.theta;
-			Tfluc[j]=_p[i].frz2.T;
-		}
-
-		
-		
-		
-		gsub[j]=sqrt( Norm2(uout[j]) + 1. );
-		sigsub/=gsub[j]*tlist[j];
-		swsub[j]=_p[i].sigmaweight/sigsub;
-		sFO[j]=_p[0].EOS.s_terms_T(Tfluc[j]);
-		
-    		divT[j]=(1/sFO[j])*gradPsub;
-    		divTtemp[j]=-(1/(gsub[j]*sFO[j]))*(cs2*(wfz+bulksub[j])*thetasub+inner(uout[j],gradPsub));
-                 
-                
-		double insub=divTtemp[j]*divTtemp[j]-Norm2(divT[j]);
-		double norm=-sqrt(abs(insub));
-		divTtemp[j]/=norm;
-		divT[j]=(1/norm)*divT[j];
-
-		
-		
-		//		if(isnan(divTtemp[j])) 	
-		//{
-		
-		//	cout << "divtemp" << endl;
-		//	cout << divTtemp[j] << " " << divT[j] << " " << norm << endl;
-		//	cout << gradPsub << " " << thetasub << endl;
-		//	cout << bulksub[j] <<endl;
-		//	cout << gsub[j] << endl;
-		//	cout << tlist[j]<< endl;
-		//	cout << _p[i].frz1.T<< " " << _p[i].frz2.T<< " " << taup<< " " << taupp << endl;
-			
-			
-		//}
-		
-		sFO[j]*=pow(Tfluc[j]*0.1973,3);
-	 	Tfluc[j]*=0.1973;
-	}
-	cf=curfrz;
-      
-}
 
 template <int D>
 void LinkList<D>::svfreezeout(int curfrz)
 {
-
-   
     
     if (frzc==0)
     {
@@ -799,11 +586,6 @@ void LinkList<D>::svinterpolate(int curfrz)
 		if (abs(_p[i].frz1.T-freezeoutT)<abs(_p[i].frz2.T-freezeoutT)) swit=1;
 		else swit=2;
 		
-//		if(_p[i].btrack==-1){
-//			if (_p[i].frz1.T<_p[i].frz2.T) swit=1;
-//			else swit=2;		
-//		}
-		
 		double sigsub,thetasub,inside;
 		Vector<double,D> gradPsub;
 		if (swit==1){
@@ -859,48 +641,9 @@ void LinkList<D>::svinterpolate(int curfrz)
 		double norm=-sqrt(abs(insub));
 		divTtemp[j]/=norm;
 		divT[j]=(1/norm)*divT[j];
-
-		
-//		if(_p[i].btrack==-1){
-//		        cout << "btracked =" << _p[i].btrack << endl;
-//			cout << divTtemp[j] << " " << divT[j] << " " << norm << endl;
-//			cout << gradPsub << " " << thetasub << endl;
-//			cout << bulksub[j] <<endl;
-//			cout << gsub[j] << endl;
-//			cout << tlist[j] << " " << _p[i].r << endl;
-//			cout << _p[i].frz1.gradP<< " " << _p[i].frz2.gradP <<  endl;
-//			cout << _p[i].frz1.T*197.3<< " " << _p[i].frz2.T*197.3 <<  endl;
-//			getchar();
-//		
-//		}
-		
-		
-//		if (divTtemp[j]==1) {
-//		        cout << "track sph=" << _p[i].btrack << " " << i <<  endl;
-//			cout << divTtemp[j] << " " << divT[j] << " " << norm << endl;
-//			cout << gradPsub << " " << thetasub << endl;
-//			cout << tlist[j] << " " << _p[i].r << endl;
-//			cout << _p[i].frz1.gradP<< " " << _p[i].frz2.gradP <<  endl;
-//			cout << _p[i].frz1.T*197.3<< " " << _p[i].frz2.T*197.3 <<  endl;
-//			getchar();
-		
-//		}
 		
 		avgetasig+=sFO[j]/sigsub;
-		
-		//		if(isnan(divTtemp[j])) 	
-		//		{
-		
-		//	cout << "divtemp" << endl;
-		//	cout << divTtemp[j] << " " << divT[j] << " " << norm << endl;
-			//	cout << gradPsub << " " << thetasub << endl;
-		//	cout << bulksub[j] <<endl;
-		//	cout << gsub[j] << endl;
-		//	cout << tlist[j] << " " << _p[i].r << endl;
-		//	cout << _p[i].frz1.T*0.1973<< " " << _p[i].frz2.T*0.1973<<  endl;			
 			
-		//}
-	
 		sFO[j]*=pow(Tfluc[j]*0.1973,3);
 		Tfluc[j]*=0.1973;
 	
@@ -949,25 +692,9 @@ void LinkList<D>::conservation()
     Etot=E+Ez;
    Eloss= (E0-Etot)/E0*100;
     rk2=0;
-    
- //   cout << Eloss << "% of Energy loss at time t=" << t << endl;
-//    cout << (S0-S)/S0 << "% of Entropy loss at time t=" << t << endl;
   
 }
 
-template <int D>
-void LinkList<D>::vconservation()
-{
-    
-    conservation_entropy();
-    vconservation_E();
-    Etot=E+Ez;
-   Eloss= (E0-Etot)/E0*100;
-   rk2=0;
- //   cout << Eloss << "% of Energy loss at time t=" << t << endl;
-  //  cout << (S0-S)/S0 << "% of Entropy loss at time t=" << t << endl;
-  
-}
 
 template <int D>
 void LinkList<D>::svconservation()
@@ -1064,25 +791,6 @@ void LinkList<D>::sv_setb()
 }
 
 template <int D>
-void LinkList<D>::vconservation_E()
-{
-    
-    E=0.;
-    for (int i=0; i<_n; i++) {
-    E+= (_p[i].C* _p[i].gamma* _p[i].gamma-_p[i].EOS.p()-_p[i].bigPI)/_p[i].sigma*_p[i].sigmaweight*t;
-    }
-    
-    if (first==1)
-    {
-    	
-    	first=0;
-    	E0=E;
-    }
-    
-
-}
-
-template <int D>
 void LinkList<D>::svconservation_E()
 {
     
@@ -1115,18 +823,6 @@ void LinkList<D>::conservation_Ez()
 
 }
 
-template <int D>
-void LinkList<D>::vconservation_Ez()
-{
-    
-    dEz=0.;
-
-    
-    for (int i=0; i<_n; i++) {
-    dEz+=( _p[i].EOS.p()+_p[i].bigPI)/_p[i].sigma*_p[i].sigmaweight;
-    }
-
-}
 
 template <int D>
 void LinkList<D>::svconservation_Ez()
@@ -1364,33 +1060,6 @@ void LinkList<D>::optint(int a, double & ux0,  double & uy0)
 
 
 template <int D>
-void LinkList<D>::smoothopt(int a)
-{
-	double prev=_p[a].eta/_p[a].sigma;
-
-    _p[a].sigma = 0;
-    _p[a].eta = 0;
-    Vector<int,D> i;
-	for(i.x[0]=-2; i.x[0]<=2; i.x[0]++)
-        {
-        for(i.x[1]=-2; i.x[1]<=2; i.x[1]++)
-        {
-
-                 int b=lead[triToSum(dael[a]+i, size)];
-                 while(b!=-1 )
-                 {
-                 	double kern=kernel(_p[a].r-_p[b].r);
-                    	_p[a].sigma += _p[b].sigmaweight*kern;
-                    	_p[a].eta +=  prev * _p[b].sigmaweight*kern;
-                   	b=link[b];
-                 }
-        }
-	}
-	
-	
-}
-
-template <int D>
 void LinkList<D>::optimization2(int a)
 {
 
@@ -1423,34 +1092,6 @@ void LinkList<D>::optimization2(int a)
                     _p[a].gradP += _p[a].sigma*( _p[b].EOS.p()/(_p[b].sigma*_p[b].sigma) + _p[a].EOS.p()/(_p[a].sigma*_p[a].sigma) )*siggradK;
                     _p[a].gradsig +=siggradK;
                     
-                    
-               
-
-
-		    //			if(isnan(_p[a].gradP.x[0])) {
-		    //		cout << "grad P not working" << endl;
-		    //		cout << t <<" "  << _p[a].gradP <<  " " << a << " " << b << endl;
-		    //		cout << _p[b].sigmaweight << " " << 	_p[a].sigma << " " <<  _p[b].EOS.p() << " " << endl;
-		    //		cout <<   Size << " " <<  _p[b].EOS.s() << " " << _p[a].EOS.s() <<endl;
-		    //
-		    //		cout << _p[a].r << endl;
-		    //		cout << _p[b].r << endl;
-		    //		cout << kernel(_p[a].r-_p[b].r) << endl;
-		    //		
-		    //	}
-		    //	else if (isnan(_p[a].gradP.x[1])) {
-		    //		cout << "1 " << gradPressure_weight(a,b) <<  " " << a << " " << b << endl;
-		    //		
-		    //	}
-		    //	else if (isnan(_p[a].gradP.x[2])) {
-		    //		cout << "2 " << gradPressure_weight(a,b) <<  " " << a << " " << b << endl;
-		    //
-		    //	}
-		
-			
-			
-			
-			
 
                     b=link[b];
                     }
@@ -1460,102 +1101,7 @@ void LinkList<D>::optimization2(int a)
 
 }
 
-template <int D>
-void LinkList<D>::voptimization(int a)
-{
 
-    _p[a].sigma = 0;
-    _p[a].eta = 0;
-    Vector<int,D> i;
-	for(i.x[0]=-2; i.x[0]<=2; i.x[0]++)
-        {
-        for(i.x[1]=-2; i.x[1]<=2; i.x[1]++)
-        {
-
-                 int b=lead[triToSum(dael[a]+i, size)];
-                 while(b!=-1 )
-                 {
-                 	double kern=kernel(_p[a].r-_p[b].r);
-                    	_p[a].sigma +=_p[b].sigmaweight*kern;
-                    	_p[a].eta +=  _p[b].sigmaweight*_p[b].eta_sigma*kern; 
-                    	
-                    	
-                   	b=link[b];
-                 }
-        }
-	}
-	
-}
-
-template <int D>
-void LinkList<D>::voptimization2(int a,double tin)
-{
-
-    _p[a].gradP=0.;
-    _p[a].dsigma_dt = 0;
-    _p[a].gradBulk = 0;
-    _p[a].gradsig=0;
-
-    Vector<int,D> i;
-    
-	
-
-	for(i.x[0]=-2; i.x[0]<=2; i.x[0]++)
-        {
-        for(i.x[1]=-2; i.x[1]<=2; i.x[1]++)
-        {
-
-                 int b=lead[triToSum(dael[a]+i, size)];
-
-
-                    while(b!=-1 )
-                    {
-
-                    
-                    Vector<double,D> gradK=gradKernel(_p[a].r-_p[b].r);
-                    Vector<double,D> siggradK=_p[b].sigmaweight*gradK;
-                    Vector<double,D> sigsigK=_p[a].sigma*siggradK;
-
-
-                    _p[a].dsigma_dt += inner(siggradK,_p[a].v-_p[b].v);
-                    _p[a].gradP += ( _p[b].EOS.p()/(_p[b].sigma*_p[b].sigma) + _p[a].EOS.p()/(_p[a].sigma*_p[a].sigma) )*sigsigK;
-                    _p[a].gradBulk += ( _p[b].Bulk/_p[b].sigma/_p[b].gamma/tin + _p[a].Bulk/_p[a].sigma/_p[a].gamma/tin )*sigsigK;
-                     _p[a].gradsig+=siggradK;
-               
-		
-
-
-		     //			if(isnan(_p[a].gradP.x[0])) {
-		     //		cout << "gradP stopped working" << endl;
-		     //		cout << t <<" "  << _p[a].gradP <<  " " << a << " " << b << endl;
-		     //		cout << _p[b].sigmaweight << " " << 	_p[a].sigma << " " <<  _p[b].EOS.p() << " " << endl;
-		     //		cout <<   Size << " " <<  _p[b].EOS.s() << " " << _p[a].EOS.s() <<endl;
-		     //
-		     //		cout << _p[a].r << endl;
-		     //		cout << _p[b].r << endl;
-		     //		cout << kernel(_p[a].r-_p[b].r) << endl;
-		     //		
-		     //	}
-		     //	else if (isnan(_p[a].gradP.x[1])) {
-		     //		cout << "1 " << gradPressure_weight(a,b) <<  " " << a << " " << b << endl;
-		     //		
-		     //	}
-		     //	else if (isnan(_p[a].gradP.x[2])) {
-		     //		cout << "2 " << gradPressure_weight(a,b) <<  " " << a << " " << b << endl;
-		     //
-		     //	}
-		
-		
-
-                    b=link[b];
-                    }
-        }
-	}
-
-
-	
-
-}
 
 template <int D>
 void LinkList<D>::svoptimization2(int a,double tin,int & count)
@@ -1612,30 +1158,6 @@ void LinkList<D>::svoptimization2(int a,double tin,int & count)
                     
                     _p[a].gradshear+=(inner(sigsigK,_p[a].v))*(sigsqrb*vb+sigsqra*va);
                     _p[a].divshear+=(sigsqrb*(sigsigK*transpose(vminib))+sigsqra*(sigsigK*transpose(vminia)));
-               
-
-
-		    //if(isnan(_p[a].gradP.x[0])) {
-			  //				cout << "gradP stopped working" << endl;
-		    //		cout << t <<" "  << _p[a].gradP <<  " " << a << " " << b << endl;
-		    //		cout << _p[b].sigmaweight << " " << 	_p[a].sigma << " " <<  _p[b].EOS.p() << " " << endl;
-		    //		cout <<   Size << " " <<  _p[b].EOS.s() << " " << _p[a].EOS.s() <<endl;
-		    //
-		    //		cout << _p[a].r << endl;
-		    //		cout << _p[b].r << endl;
-		    //		cout << kernel(_p[a].r-_p[b].r) << endl;
-		    //		
-		    //	}
-		    //	else if (isnan(_p[a].gradP.x[1])) {
-		    //		cout << "1 " << gradPressure_weight(a,b) <<  " " << a << " " << b << endl;
-		    //		
-		    //	}
-		    //	else if (isnan(_p[a].gradP.x[2])) {
-		    //		cout << "2 " << gradPressure_weight(a,b) <<  " " << a << " " << b << endl;
-		    //
-		    //	}
-		
-		
 
                     b=link[b];
                     }
@@ -1831,7 +1353,6 @@ void LinkList<D>::updateIC()
 		
 	}
 	
-	//guess();
 	if (gtyp!=3) guess();
 	else guess2();
 	
@@ -1875,14 +1396,6 @@ void LinkList<D>::guess2()
 		
 		_p[i].EOS.update_s(_p[i].s_sub);
 		
-//		T00[i]/=div2;
-//		Tx0[i]/=div2;
-
-		
-		
-		
-		
-		
 		_p[i].u.x[0]=ux0[i];
 		_p[i].u.x[1]=uy0[i];
 		
@@ -1892,13 +1405,6 @@ void LinkList<D>::guess2()
 		_p[i].v.x[0]=ux0[i]/_p[i].gamma;
 		_p[i].v.x[1]=uy0[i]/_p[i].gamma;
 		
-//		if (_p[i].gamma<1){
-//		cout << _p[i].gamma << " " <<  _p[i].u << endl;
-//		
-//		getchar();}
-		
-		//if (abs(_p[i].r.x[1])<0.05)cout << _p[i].r << " " << 0.1973*_p[i].EOS.T()<< endl;
-		
 		_p[i].sigsub=0;
 		
 		if (_p[i].EOS.T()>tmax)
@@ -1906,20 +1412,15 @@ void LinkList<D>::guess2()
 		
 			tmax=_p[i].EOS.T();
 			
-			rmax=_p[i].r;
-			
-			//imax=i;
+			rmax=_p[i].r;	
 		}
 		
 		_p[i].frzcheck(t0,count1,_n);
 		
 	}
 	
-	
-	//cout << "largest temperature" << endl;
 	cout << tmax*197.3 << " " << rmax <<endl;
 	
-	//Ss=0.;
 	uy0.clear();
 	ux0.clear();
 
@@ -1934,11 +1435,7 @@ template <int D>
 void LinkList<D>::guess()
 {
 
-	//Vector<int,D> i;                                                                                                                            
-	//double Ss;                                                                                                                                  
-
 	initiate();
-
 
         for (int i=0;i<_n;i++)
         {
@@ -1946,8 +1443,6 @@ void LinkList<D>::guess()
 		optimization(i);
 	}
 	
-	
-
         double tmax=0;
         Vector<double,D> rmax;
 	for (int j=0;j<D;j++)
@@ -1965,9 +1460,6 @@ void LinkList<D>::guess()
                 _p[i].s_sub=_p[i].sigma/_p[i].gamma/t0;
 
                  _p[i].EOS.update_s(_p[i].s_sub);
-
-	        //if (abs(_p[i].r.x[1])<0.05)cout << _p[i].r << " " << 0.1973*_p[i].EOS.T()<< endl;                                                   
-
 		
 		_p[i].sigsub=0;
 
@@ -1978,13 +1470,11 @@ void LinkList<D>::guess()
 
 		        rmax=_p[i].r;
 
-			//imax=i;                                                                                                                     
                 }
 
 	        _p[i].frzcheck(t0,count1,_n);
 
         }
-
 
 	//cout << "largest temperature" << endl;                                                                                                      
 	cout << tmax*197.3 << " " << rmax <<endl;
@@ -1993,20 +1483,6 @@ void LinkList<D>::guess()
 
         if (qmf==1) qmflow();
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -2062,135 +1538,17 @@ void LinkList<D>::qmflow()
 
 }
 
-//template <int D>
-//void LinkList<D>::p_anis(int &in)
-//{
-//	ep1[in]=0;
-//	ep1[in]=0;
-
-//	for (int i=0; i<_n; i++) {
-//	double sigsig=_p[i].sigmaweight/_p[i].sigma;
-//	ep1[in]+=(_p[i].EOS.w()*Norm2(_p[i].u)+2*_p[i].EOS.p() )*sigsig;
-//	ep2[in]+=_p[i].EOS.w()*(_p[i].u.x[0]*_p[i].u.x[0]-_p[i].u.x[1]*_p[i].u.x[1]) *sigsig;
-//	
-//	}
-//	tsave[in]=t;
-//	
-//	//cout << tsave[in] << " p_an=" <<  ep2[in]/ep1[in] << endl;
-//	
-//	++in;
-//}
-
-//template <int D>
-//void LinkList<D>::vp_anis(int &in)
-//{
-//	ep1[in]=0;
-//	ep1[in]=0;
-
-//	for (int i=0; i<_n; i++) {
-//	double w_v=_p[i].EOS.w()+_p[i].bigPI;
-//	double sigsig=_p[i].sigmaweight/_p[i].sigma;
-//	ep1[in]+=(w_v*Norm2(_p[i].u)+2*_p[i].EOS.p() )*sigsig;
-//	ep2[in]+=w_v*(_p[i].u.x[0]*_p[i].u.x[0]-_p[i].u.x[1]*_p[i].u.x[1]) *sigsig;
-//	
-//	}
-//	tsave[in]=t;
-//	
-//	//cout << tsave[in] << " p_an=" <<  ep2[in]/ep1[in] << endl;
-//	
-//	++in;
-//}
-
-//template <int D>
-//void LinkList<D>::s_anis(int in)
-//{
-
-//	int ins=in-1;
-//	ec1[ins]=0;
-//	ec1[ins]=0;
-//	for (int i=0; i<_n; i++) {
-//	double sigsig=_p[i].EOS.e()*_p[i].sigmaweight/_p[i].sigma;
-//	ec1[ins]+=Norm2(_p[i].r)*sigsig;
-//	ec2[ins]+=( _p[i].r.x[1]*_p[i].r.x[1]-_p[i].r.x[0]*_p[i].r.x[0])*sigsig;
-//	
-//	
-//	}
-//	
-//	//cout << tsave[ins] << " s_an=" <<  ec2[ins]/ec1[ins] << endl;
-//	
-//}
-
-//template <int D>
-//void LinkList<D>::v_anis()
-//{
-
-//	
-//	double top=0,bot=0,sigsub=0;
-//	avgT=0; 
-//	avgvt=0;
-//	for (int i=0; i<_n; i++) {
-//	double sigsig=_p[i].EOS.e()*_p[i].sigmaweight/_p[i].sigma;
-//	bot+=( _p[i].v.x[0]+_p[i].v.x[1])*sigsig;
-//	top+=( _p[i].v.x[0]-_p[i].v.x[1])*sigsig;
-//	avgT+=_p[i].EOS.T();
-//	avgvt+=Norm2(_p[i].v)*sigsig;
-//	sigsub+=sigsig;
-//	
-//	}
-//	avgT/=_n;
-//	avgvt/=_n*sigsub;
-//	
-//	van=top/bot;
-//	
-//	//cout << t << " v_an=" << van << endl;
-//	
-//}
-
-//template <int D>
-//void LinkList<D>::averages()
-//{
-//	
-//	cout << "Calculating averages over " << fcount << " events" << endl;
-
-//	pan=new double[steps];
-//	san=new double[steps];
-
-//	for (int i=0; i<steps; i++) {
-//	ep1[i]/=fcount;
-//	ep2[i]/=fcount;
-//	ec1[i]/=fcount;
-//	ec2[i]/=fcount;
-//	pan[i]=ep2[i]/ep1[i];
-//	san[i]=ec2[i]/ec1[i];
-//	}
-//}
-
-
-
-
 
 template <int D>
 void LinkList<D>::setv(string vtype)
 {
-	string bulk ("bulk");
-   	string shear ("shear");
    	string bulkshear ("bulk+shear");
    	string shearbulk ("shear+bulk");
    	string ideal ("ideal");
    	
-	
-
    	if (vtype==ideal)
    	{
    		visc=0;
-   	}
-   	else if (vtype==bulk)
-   	{
-   		visc=1;
-   	}
-	else if (vtype==shear)
-   	{
-   		visc=2;
    	}
    	else if ((vtype==bulkshear) || (vtype==shearbulk))
    	{
@@ -2198,23 +1556,5 @@ void LinkList<D>::setv(string vtype)
    	}
 
 }
-
-//template <int D>
-//void LinkList<D>::printsw()
-//{
-//	ofstream PSW;
-//	string pswname;
-//	pswname=ofolder+"avg5sw.dat";
-//	PSW.open(pswname.c_str());
-
-//	
-//	for (int i=0;i<_n;i++)
-//	{
-//		PSW <<  _p[i].r << " " <<  _p[i].sigmaweight << endl;
-//	
-//	}
-//	PSW.close();
-//	
-//}
 
 #endif
