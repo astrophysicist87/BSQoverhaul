@@ -225,52 +225,7 @@ void manualenter(_inputIC &ics, LinkList<D> &linklist)
   	   	
   	   	DFO.close();
   	   	
-  	   	
-//  	   	string after=".dat";
-//  	   	string ideal ("ideal");
-//   		string bulk ("bulk");
-//   		string shearbulk ("shear+bulk");
-//   		string bulkshear ("bulk+shear");
-//  	   	string before;
-//  	   	if (fvisc==ideal) before="freezeout_ev";
-//		else if (fvisc==bulk) before="bvfreezeout_ev";
-//		else if ((fvisc==shearbulk)||(fvisc==bulkshear)) before="sbvfreezeout_ev";
-//  	   	ofstream RUN;
-//  	   	string runname="run"+ics.rnum+ ".sh";
-//  	   	RUN.open(runname.c_str() );
-//  	   	RUN << "if [ ! -d \"" << dfpre << outf <<"\" ]; then" << endl;
-//  	   	RUN << "  mkdir " <<  dfpre << outf << endl;
-//  	   	RUN << "fi" << endl;
-//  	   	RUN << "for ((i=" <<  linklist.start << "; i<=" << linklist.end << "; i++)) " << endl;
-//  	   	RUN << "do " << endl;
-//  	   	RUN << "   mv outputfiles/" << outf << "/"<< before << "\"$i\"" << after << " " << dfpre << outf << "/"<< before << "\"$i\"" << after << endl;
-//  	   	RUN << "done " << endl;
-
-//  	   	
-//  	   	if (df==1){
-//  	   	RUN << "cd df" << endl;
-//  	   	RUN << "if [ ! -d \"out/" <<  outf <<"\" ]; then" << endl;
-//  	   	RUN << "  mkdir out/" << outf << endl;
-//  	   	RUN << "fi" << endl;
-//  	   	RUN << "make" << endl;
-//  	   	RUN << "for ((j=" <<  linklist.start << "; j<=" << linklist.end << "; j++)) " << endl;
-//		RUN << "do" << endl;
-//  	   	RUN << "./fo " << dffile << " " << ics.rnum<<    " \"$j\"" << endl;
-//  	   	RUN << "done" << endl;
-//  	   	RUN << "./run\"$1\".sh   " <<  linklist.start << " " << linklist.end << endl;
-//  	   	}
-//  	   	else if (df==2){
-//  	   	RUN << "cd sampling" << endl;
-//  	   	RUN << "make" << endl;
-//  	   	RUN << "for ((j=" <<  linklist.start << "; j<=" << linklist.end << "; j++)) " << endl;
-//		RUN << "do" << endl;
-//  	   	RUN << "./fo " << dffile <<  " " << ics.rnum << " \"$j\"" << endl;
-//  	   	RUN << "done" << endl;	
-//  	   	RUN << "./" << runname <<  " " << ics.rnum << " " << linklist.start << "  " << linklist.end <<  endl;
-//  	   	}
-//  	   	RUN.close();
-  	   	
-  	   	
+ 
            }
           
          

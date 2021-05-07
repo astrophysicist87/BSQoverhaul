@@ -1,13 +1,13 @@
 #ifndef _OUTPUT_H_
 #define _OUTPUT_H_
 
-#include<fstream>
-#include<stdio.h>
+#include <fstream>
+#include <stdio.h>
 #include <cstdio>
 #include <cstdlib>
-#include<iostream>
-#include<string.h>
-#include<dirent.h>
+#include <iostream>
+#include <string.h>
+#include <dirent.h>
 #include <sstream>
 #include <vector>
 #include "particle.h"
@@ -19,36 +19,33 @@
 using namespace std;
 
 template <int D>
-class Output {
-private:
-	ofstream ESC,FO,SC;
-   	string ESCname,FOname;
-   	string Scons;
-   	int countEP,countGC;
-   	string convertInt(int number);
-   	string cfolder;
-   	typedef struct stat Stat;
-   	
-public:
-	Output<D>(LinkList<D> &linklist);
-	void cleardir(LinkList<D> &linklist);
-	void conservationstart(LinkList<D> &linklist);
-	void conservation(LinkList<D> &linklist);
-//	void sconservation(LinkList<D> &linklist);
-	void eprofile(LinkList<D> &linklist);
-	void eccout(LinkList<D> &linklist);
-        double ecc(LinkList<D> &linklist, double  & psi,double & rout , double & Etot, int m,int n);
-	void sveprofile(LinkList<D> &linklist);
-	void gubcheckux(LinkList<D> &linklist);
-	void gubcheckuy(LinkList<D> &linklist);
-	void do_mkdir(const char *path, int mode);
-	void averages(LinkList<D> &linklist);
-	void FOstart(LinkList<D> &linklist);
-	void FOprint(LinkList<D> &linklist);
-	void vFOprint(LinkList<D> &linklist);
-	void svFOprint(LinkList<D> &linklist);
-	void sconstart(LinkList<D> &linklist);
-	void SCprint(LinkList<D> &linklist);
+class Output
+{
+	private:
+		ofstream ESC,FO,SC;
+	   	string ESCname,FOname;
+	   	string Scons;
+	   	int countEP,countGC;
+	   	string convertInt(int number);
+	   	string cfolder;
+	   	typedef struct stat Stat;
+	   	
+	public:
+		Output<D>(LinkList<D> &linklist);
+		void cleardir(LinkList<D> &linklist);
+		void conservation(LinkList<D> &linklist);
+		void eprofile(LinkList<D> &linklist);
+		void eccout(LinkList<D> &linklist);
+	        double ecc(LinkList<D> &linklist, double  & psi,double & rout , double & Etot, int m,int n);
+		void sveprofile(LinkList<D> &linklist);
+		void do_mkdir(const char *path, int mode);
+		void averages(LinkList<D> &linklist);
+		void FOstart(LinkList<D> &linklist);
+		void FOprint(LinkList<D> &linklist);
+		void vFOprint(LinkList<D> &linklist);
+		void svFOprint(LinkList<D> &linklist);
+		void sconstart(LinkList<D> &linklist);
+		void SCprint(LinkList<D> &linklist);
 };
 
 template <int D>
@@ -74,81 +71,12 @@ Output<D>::Output(LinkList<D> &linklist)
    
    
   countEP=0;
-  // conservationstart( linklist);
    FOstart( linklist);
    if  (linklist.visc==1) sconstart(linklist);
    
    
 }
 
-template <int D>
-void Output<D>::conservationstart(LinkList<D> &linklist)
-{
-	
-   	
-   	string esin;
-   	
-   	if (linklist.average==1)
-   	 {
-   	 	ESCname=cfolder+"average_Econsv.dat";
-   	 }   	    	
-   	 else if (linklist.fcount==0&&linklist.average!=1)
-   	{
-		if (linklist.visc==0)
-   	 	{
-   	 		esin="conserv";
-   	 	}
-   	 	else if  (linklist.visc==1)
-   	 	{
-   	 		esin="bvconserv";
-   	 	}
-   	 	else if  (linklist.visc==3)
-   	 	{
-   	 		esin="sbvconserv";
-   	 	}
-   	
-   		
-   	 	ESCname=ofolder+esin+"_weight.dat";
-   	 }
-   	 else
-   	 {
-   	 
-   	 	if (linklist.visc==0)
-   	 	{
-   	 		esin="conserv";
-   	 	}
-   	 	else if  (linklist.visc==1)
-   	 	{
-   	 		esin="bvconserv";
-   	 	}
-   	 	else if  (linklist.visc==3)
-   	 	{
-   	 		esin="sbvconserv";
-   	 	}
-   	 	
-   	 	string under ("_ev");
-   	 	string even;
-   	 	even=convertInt(linklist.fnum);
-   	 	ESCname=cfolder+esin+under+even+".dat";
-   	 }
-   	 
-   	 
-   	
-   	
-  	ESC.open(ESCname.c_str());
-  	if (!ESC.is_open())
-	{
-		
-		cout << "Error: cannot open E_S_conserv.dat file!" << endl;
-		exit(1);
-	}
-	
-  	ESC.close();
-  	
-  	countEP=0;
-  	countGC=0;
-  	
-}
 
 template <int D>
 void Output<D>::FOstart(LinkList<D> &linklist)
@@ -175,9 +103,6 @@ void Output<D>::FOstart(LinkList<D> &linklist)
    	 	{
    	 		FOin="sbvfreezeout";
    	 	}
-
-   	 	
-
    	
    	 	FOname=ofolder+FOin+"_weight.dat";
    	 }
@@ -214,12 +139,6 @@ void Output<D>::FOstart(LinkList<D> &linklist)
 		cout << "Error: cannot open E_S_conserv.dat file!" << endl;
 		exit(1);
 	}
-//	if  (linklist.visc==3) {//
-//		//double therm=1./(linklist.sFO*pow(freezeoutT,3));
-//		FO << linklist.sFO << endl;
-//		
-//	}
-//	else  FO << linklist.sFO << endl;
 	
   	FO.close();
   	
@@ -249,88 +168,6 @@ void Output<D>::sconstart(LinkList<D> &linklist)
   	SC.close();
 }
 
-template <int D>
-void Output<D>::gubcheckux(LinkList<D> &linklist)
-{
-	ofstream GSC;
-	
-   	countGC+=1;
-   	string gcin ("gubcheck_ux");
-   	string dat (".dat");
-   	string sCEP;
-   	sCEP=convertInt(countEP);
-   	
-   	string gcname=ofolder+gcin+sCEP+dat;
-   	 
-   	
-  	GSC.open(gcname.c_str());
-  	if (!GSC.is_open())
-	{
-		
-		cout << "Error: cannot open gubcheck" << sCEP <<".dat file!" << endl;
-		exit(1);
-	}
-	else 
-	{
-		//GSC << linklist.t << endl;
-		for (int i=0;i<linklist.n();i++)
-		{
-		if (abs(Norm(linklist._p[i].r ))<4.)
-		{
-		GSC << linklist._p[i].r  <<  " " << linklist._p[i].u.x[0] << endl;
-		}
-		//GSC << linklist._p[i].r  <<  " " << linklist._p[i].u.x[0]/linklist.ux(linklist.t,linklist._p[i].r.x[0],linklist._p[i].r.x[1]) << endl;
-		
-		}
-	}
-	
-
-	
-  	GSC.close();
-   	
-}
-
-template <int D>
-void Output<D>::gubcheckuy(LinkList<D> &linklist)
-{
-	ofstream GSC;
-	
-   	countGC+=1;
-   	string gcin ("gubcheck_uy");
-   	string dat (".dat");
-   	string sCEP;
-   	sCEP=convertInt(countEP);
-   	string gcname=ofolder+gcin+sCEP+dat;
-   	
-   	
-   	
-   	
-   	
-  	GSC.open(gcname.c_str());
-  	if (!GSC.is_open())
-	{
-		
-		cout << "Error: cannot open gubcheck" << sCEP <<".dat file!" << endl;
-		exit(1);
-	}
-	else 
-	{
-		//GSC << linklist.t << endl;
-		for (int i=0;i<linklist.n();i++)
-		{
-	//	GSC << linklist._p[i].r  <<  " " << linklist._p[i].u.x[1]/linklist.uy(linklist.t,linklist._p[i].r.x[0],linklist._p[i].r.x[1]) << endl;
-		if (abs(Norm(linklist._p[i].r ))<4.)
-		{
-		GSC << linklist._p[i].r  <<  " " << linklist._p[i].u.x[1] << endl;
-		}
-		}
-	}
-	
-
-	
-  	GSC.close();
-   	
-}
 
 template <int D>
 void Output<D>::eprofile(LinkList<D> &linklist)
@@ -375,21 +212,7 @@ void Output<D>::eprofile(LinkList<D> &linklist)
 		
 		for (int i=0;i<linklist.n();i++)
 		{
-//			for (int j=0;j<linklist.D;j++)
-//			{
-//		 		EPN << linklist._p[i].r.x[j] << " ";
-//		 	}
-		
-//	EPN << linklist._p[i].r   << " " << linklist._p[i].EOS.e()/linklist.eanal2(linklist.t,linklist._p[i].r.x[0],linklist._p[i].r.x[1]) <<  endl;
-//	if (abs(Norm(linklist._p[i].r ))<4.)
-//		{
-			
-    		EPN << linklist._p[i].r   << " " << linklist._p[i].EOS.e() <<  endl;	
-//		EPN << linklist.t   << " "  << linklist._p[i].r   << " " << linklist._p[i].EOS.T()*0.1973 << " " <<  linklist._p[i].EOS.p()   << " " <<  linklist._p[i].EOS.e()   << " " <<  linklist._p[i].EOS.s()   << " " <<  linklist._p[i].u   <<endl;
-		//}
-		//cout << linklist._p[i].EOS.s() << " " << linklist._p[i].sigma << endl;
-		//getchar();
-   	
+    		EPN << linklist._p[i].r   << " " << linklist._p[i].EOS.e() <<  endl;	   	
 		}
 	}
 	
@@ -398,12 +221,6 @@ void Output<D>::eprofile(LinkList<D> &linklist)
   	EPN.close();
    	
 }
-
-
-
-
-
-
 
 
 template <int D>
@@ -450,33 +267,7 @@ void Output<D>::sveprofile(LinkList<D> &linklist)
 		
 		for (int i=0;i<linklist.n();i++)
 		{
-		
-//			for (int j=0;j<linklist.D;j++)
-//			{
-//		 		EPN << linklist._p[i].r.x[j] << " ";
-//		 	}
-		
-//	EPN << linklist._p[i].r   << " " << linklist._p[i].EOS.e()/linklist.eanal2(linklist.t,linklist._p[i].r.x[0],linklist._p[i].r.x[1]) <<  endl;
-	//if (abs(Norm(linklist._p[i].r ))<4.)
-		//{
-			
-    			
-		
-		
-	
-
-//		EPN << linklist._p[i].r   << " " << linklist._p[i].v  << " " <<  linklist._p[i].shv.x[0][0]*0.1973  << " " << linklist._p[i].shv.x[1][1]*0.1973  << " " << linklist._p[i].shv.x[1][2]*0.1973  << " " << linklist._p[i].shv.x[2][2]*0.1973  << " " << linklist.t*linklist.t*linklist._p[i].shv33*0.1973  << " " << linklist._p[i].EOS.p()*0.1973  <<  " " <<linklist._p[i].EOS.e()*0.1973 <<   " " << linklist._p[i].EOS.T()*0.1973 << endl;
-
-
-
 		EPN << linklist._p[i].r   << " " << linklist._p[i].EOS.e() << " " << linklist._p[i].EOS.T()*0.1973 << " " << linklist._p[i].v    <<endl;	
-
-//		EPN << linklist._p[i].r   << " " << linklist._p[i].stauRelax/linklist.t * linklist._p[i].bigtheta  << " " <<  sqrt(linklist._p[i].shv.x[0][0]*linklist._p[i].shv.x[0][0]-2*linklist._p[i].shv.x[0][1]*linklist._p[i].shv.x[0][1] -2*linklist._p[i].shv.x[0][2]*linklist._p[i].shv.x[0][2]    + linklist._p[i].shv.x[1][1]*linklist._p[i].shv.x[1][1]+ linklist._p[i].shv.x[2][2]*linklist._p[i].shv.x[2][2] +2* linklist._p[i].shv.x[1][2]*linklist._p[i].shv.x[1][2]+pow(linklist.t,4)*linklist._p[i].shv33*linklist._p[i].shv33)/linklist._p[i].EOS.p() << " " << linklist._p[i].EOS.T()*0.1973 << "  " <<  linklist._p[i].EOS.e() << " " << linklist._p[i].u.x[0]/linklist._p[i].gamma << " " << linklist._p[i].u.x[1]/linklist._p[i].gamma <<  endl;	
-
-		
-		//cout << linklist._p[i].EOS.s() << " " << linklist._p[i].sigma << endl;
-		//getchar();
-   	
 		}
 	}
 	
@@ -606,7 +397,6 @@ void Output<D>::conservation(LinkList<D> &linklist)
 
 
   	ESC.open(ESCname.c_str(), ios::out | ios::app );
-//	ESC << linklist.t << " " <<   linklist.avgT*197.3 << " " << linklist.avgvt << " " <<  linklist.van <<   endl;
 	ESC << linklist.t << " " <<  linklist.Eloss << endl;
   	ESC.close();
   	
@@ -619,23 +409,6 @@ void Output<D>::conservation(LinkList<D> &linklist)
   	
 }
 
-//template <int D>
-//void Output<D>::sconservation(LinkList<D> &linklist)
-//{ 	
-
-
-//  	ESC.open(ESCname.c_str(), ios::out | ios::app );
-//	ESC << linklist.t << " " <<  linklist.Eloss << endl;
-//  	ESC.close();
-//  	
-//  	if (ESC.is_open())
-//  	{
-//  		cout << "error: still open" << endl;
-// 		exit(1);
-//  	}
-//  	
-//  	
-//}
 
 template <int D>
 void Output<D>::FOprint(LinkList<D> &linklist)
@@ -693,29 +466,6 @@ void Output<D>::vFOprint(LinkList<D> &linklist)
   	
 }
 
-//template <int D>
-//void Output<D>::SCprint(LinkList<D> &linklist)
-//{ 	
-//	
-//  	SC.open(Scons.c_str(), ios::out | ios::app );
-//  	for (int i=0;i< linklist.cf;i++)
-//  	{
-//	
-//  	SC <<  linklist._p[linklist.list[i]].saves << " " << linklist.sFO*linklist.swsub[i] << endl;
-//	}
-//  	SC.close();
-//  	
-//  	
-//  	if (SC.is_open())
-//  	{
-//  		cout << "error: still open" << endl;
-// 		exit(1);
-//  	}
-//	
-//  	delete [] linklist.swsub;
-//  	
-//  	
-//}
 
 template <int D>
 void Output<D>::svFOprint(LinkList<D> &linklist)
@@ -818,20 +568,14 @@ template <int D>
 void Output<D>::do_mkdir(const char *path, int mode)
 {
     Stat            st;
-//    int             status = 0;
 
-//	cout << path << endl;
     if (stat(path, &st) != 0)
     {
-        /* Directory does not exist */
-      //  if (mkdir(path, mode) != 0)
-        //    status = -1;
 	cout << "Directory path doesn't exist" << endl;
     }
     else if (!S_ISDIR(st.st_mode))
     {
         errno = ENOTDIR;
-      //  status = -1;
         cout << "Couldn't make the directory for output files" << endl;
         exit(1);
     }
