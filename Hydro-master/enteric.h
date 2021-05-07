@@ -289,34 +289,4 @@ void manualenter(_inputIC &ics, LinkList<D> &linklist)
 }
 
 
-
-
-template <int D>
-void nextevent(int i, LinkList<D> &linklist)
-{
-
-	int numpart, _Ntable3;
-	Particle<D> *_p;
-	if (linklist.gtyp==5) readICs_tnt(linklist.filenames[i],  _Ntable3, _p,linklist.factor,linklist.sfcheck,numpart,linklist._p[0].EOS);
-    linklist.setupnext(_Ntable3,_p,numpart);
-    	
-    		
-	for (int i=0;i<linklist.n();i++)
-	{
-		linklist._p[i].start(linklist.eost);
-	}
-	
-    
-	linklist.updateIC();
-	
-
-  	 if (linklist.visc==1) linklist.etas_set();
-  	 
-  	 
-  	 linklist.first=1;
-  	 linklist.fnum+=1;
-	
-}
-
-
 #endif

@@ -105,8 +105,6 @@ public:
 	
 	void setup(double it0, int ntot,double h,Particle<D> *_p,double dtsave, int & numpart);
 	void setupnext(int ntot, Particle<D> *_pin, int & numpart);
-	void vfreezeout(int curfrz);
-	void svfreezeout(int curfrz);
 	
 	string eos_s,eos_p;
 	string *filenames;
@@ -120,7 +118,6 @@ public:
 	void initiate();
 	
 	void guess();
-	void guess2();
 	
 	int triToSum(Vector<int,D> dael, Vector<int,D> size);
 	
@@ -128,31 +125,24 @@ public:
 	
 	void optimization(int a);
 	void optimization2(int a);
-	void voptimization(int a);
-	void voptimization2(int a,double tin);
 	void svoptimization2(int a,double tin,int & count);
 	
 	void conservation_entropy();
-	void conservation();
-	void conservation_E();
-	void conservation_Ez();
-	void vconservation();
+//	void conservation();
+//	void conservation_E();
+//	void conservation_Ez();
 	void svconservation();
-	void vconservation_E();
-	void vconservation_Ez();
 	void svconservation_E();
 	void svconservation_Ez();
 	int n() {return _n;}
-	void freezeout(int curfrz);
-	void interpolate(int curfrz);
-	void vinterpolate(int curfrz);
+//	void freezeout(int curfrz);
+//	void interpolate(int curfrz);
+	void svfreezeout(int curfrz);
 	void svinterpolate(int curfrz);
 	void freezeset();
 	void optint(int a, double & T00,  double & Tx0);
 	
 	
-	void gubser(double h);
-	void gubsershear( double h);
 	double eanal2(double t, double x, double y);
 	double g(double t, double x, double y);
 	double ux(double t, double x, double y);
@@ -263,174 +253,161 @@ int LinkList<D>::triToSum(Vector<int,D>  dael, Vector<int,D>  size)
 
 
 
-template <int D>
-void LinkList<D>::freezeout(int curfrz)
-{
-    if (frzc==0)
-    {
-    	taupp=t;	
-    	frzc=1;
-    	for (int i=0; i<_n; i++) {
-    	
-    	
-    	_p[i].frz2.r=_p[i].r;
-    	_p[i].frz2.u=_p[i].u;
-    	_p[i].frz2.sigma=_p[i].sigma;
-    	_p[i].frz2.T=_p[i].EOS.T();
-    	_p[i].frz2.theta=_p[i].div_u+_p[i].gamma/t;
-    	_p[i].frz2.gradP=_p[i].gradP;
-    	}
-    	
-    	
-    }
-    else if (frzc==1)
-    {    		
-   	taup=t;
-    	frzc=2;
-    	for (int i=0; i<_n; i++) {
-    	    	
-    	_p[i].frz1.r=_p[i].r;
-    	_p[i].frz1.u=_p[i].u;
-    	_p[i].frz1.sigma=_p[i].sigma;
-    	_p[i].frz1.T=_p[i].EOS.T();
-    	_p[i].frz1.theta=_p[i].div_u+_p[i].gamma/t;
-    	_p[i].frz1.gradP=_p[i].gradP;
-    	}
-
-	divTtemp=new double [curfrz];
-    	divT=new Vector<double,D> [curfrz];
-    	gsub=new double [curfrz];
-    	uout=new Vector<double,D> [curfrz];
-    	swsub=new double [curfrz];
-    	tlist=new double [curfrz];
-    	rsub=new Vector<double,D> [curfrz];
-
-	if (curfrz>0) interpolate(curfrz);
-    	else cf=0;
-    	 
-	
-    }
-    else
-    {
-    	
-    	
-    	tau=t;
-    	
-    	divTtemp=new double [curfrz];
-    	divT=new Vector<double,D> [curfrz];
-    	gsub=new double [curfrz];
-    	uout=new Vector<double,D> [curfrz];
-    	swsub=new double [curfrz];
-    	tlist=new double [curfrz];
-    	rsub=new Vector<double,D> [curfrz];
-    	
-    	
-    	
-    	
-    	if (curfrz>0) interpolate(curfrz);
-    	else cf=0;
-    	
-    	
-    	//sets up the variables for the next time step
-    	for (int i=0; i<_n; i++) {
-    	_p[i].frz2=_p[i].frz1;
-    	
-    	
-    	_p[i].frz1.r=_p[i].r;
-    	_p[i].frz1.u=_p[i].u;
-    	_p[i].frz1.sigma=_p[i].sigma;
-    	_p[i].frz1.T=_p[i].EOS.T();
-    	_p[i].frz1.theta=_p[i].div_u+_p[i].gamma/t;
-    	_p[i].frz1.gradP=_p[i].gradP;
-    	}
-    	taupp=taup;
-    	taup=tau;
-    }
-    cfon=0;
-}
-
-template <int D>
-void LinkList<D>::interpolate(int curfrz)
-{
-	
-	sFO.resize(curfrz,0);
-	Tfluc.resize(curfrz,0);
-	for (int j=0;j<curfrz;j++)
-	{
-		int i=list[j];
-		
-		int swit=0;
-		if (abs(_p[i].frz1.T-freezeoutT)<abs(_p[i].frz2.T-freezeoutT)) swit=1;
-		else swit=2;
-		
-		Vector<double,D> gradPsub;
-		double sigsub,thetasub;
-		
-		if (swit==1){
-			tlist[j]=taup;
-			rsub[j]=_p[i].frz1.r;
-			uout[j]=_p[i].frz1.u;		
-		
-			gradPsub=_p[i].frz1.gradP;			
-			sigsub=_p[i].frz1.sigma;
-			thetasub=_p[i].frz1.theta;
-			Tfluc[j]=_p[i].frz1.T;
-		}
-		else if (swit==2){
-			tlist[j]=taupp;
-			rsub[j]=_p[i].frz2.r;
-			uout[j]=_p[i].frz2.u;
-			bulksub[j]=_p[i].frz2.bulk;
-					
-			gradPsub=_p[i].frz2.gradP;			
-			sigsub=_p[i].frz2.sigma;
-			thetasub=_p[i].frz2.theta;
-			Tfluc[j]=_p[i].frz2.T;
-		}
-
-		
-		
-		
-		gsub[j]=sqrt( Norm2(uout[j]) + 1. );
-
-		sigsub/=gsub[j]*tlist[j];
-		
-		swsub[j]=_p[i].sigmaweight/sigsub;
-
-		
-		sFO[j]=_p[0].EOS.s_terms_T(Tfluc[j]);
-    		divT[j]=(1/sFO[j])*gradPsub;
-    		divTtemp[j]=-(1/(gsub[j]*sFO[j]))*(cs2*wfz*thetasub+inner(uout[j],gradPsub));
-                 
-                 
-              
-                
-		double insub=divTtemp[j]*divTtemp[j]-Norm2(divT[j]);
-		double norm=-sqrt(abs(insub));
-		divTtemp[j]/=norm;
-		divT[j]=(1/norm)*divT[j];
-
-		avgetasig+=sFO[j]/sigsub;
-		
-		//	if(isnan(divTtemp[j])) 	
-		//{
-		
-		//	cout << "divtemp" << endl;
-		//	cout << divTtemp[j] << " " << divT[j] << " " << norm << endl;
-		//	cout << gradPsub << " " << thetasub << endl;
-			
-			
-		//}
-		
-		sFO[j]*=pow(Tfluc[j]*0.1973,3);
-		Tfluc[j]*=0.1973;
-	
-	}
-	cf=curfrz;
-}
-
-
-
+//template <int D>
+//void LinkList<D>::freezeout(int curfrz)
+//{
+//    if (frzc==0)
+//    {
+//    	taupp=t;	
+//    	frzc=1;
+//    	for (int i=0; i<_n; i++) {
+//    	
+//    	
+//    	_p[i].frz2.r=_p[i].r;
+//    	_p[i].frz2.u=_p[i].u;
+//    	_p[i].frz2.sigma=_p[i].sigma;
+//    	_p[i].frz2.T=_p[i].EOS.T();
+//    	_p[i].frz2.theta=_p[i].div_u+_p[i].gamma/t;
+//    	_p[i].frz2.gradP=_p[i].gradP;
+//    	}
+//    	
+//    	
+//    }
+//    else if (frzc==1)
+//    {    		
+//   	taup=t;
+//    	frzc=2;
+//    	for (int i=0; i<_n; i++) {
+//    	    	
+//    	_p[i].frz1.r=_p[i].r;
+//    	_p[i].frz1.u=_p[i].u;
+//    	_p[i].frz1.sigma=_p[i].sigma;
+//    	_p[i].frz1.T=_p[i].EOS.T();
+//    	_p[i].frz1.theta=_p[i].div_u+_p[i].gamma/t;
+//    	_p[i].frz1.gradP=_p[i].gradP;
+//    	}
+//
+//	divTtemp=new double [curfrz];
+//    	divT=new Vector<double,D> [curfrz];
+//    	gsub=new double [curfrz];
+//    	uout=new Vector<double,D> [curfrz];
+//    	swsub=new double [curfrz];
+//    	tlist=new double [curfrz];
+//    	rsub=new Vector<double,D> [curfrz];
+//
+//	if (curfrz>0) interpolate(curfrz);
+//    	else cf=0;
+//    	 
+//	
+//    }
+//    else
+//    {
+//    	
+//    	
+//    	tau=t;
+//    	
+//    	divTtemp=new double [curfrz];
+//    	divT=new Vector<double,D> [curfrz];
+//    	gsub=new double [curfrz];
+//    	uout=new Vector<double,D> [curfrz];
+//    	swsub=new double [curfrz];
+//    	tlist=new double [curfrz];
+//    	rsub=new Vector<double,D> [curfrz];
+//    	
+//    	
+//    	
+//    	
+//    	if (curfrz>0) interpolate(curfrz);
+//    	else cf=0;
+//    	
+//    	
+//    	//sets up the variables for the next time step
+//    	for (int i=0; i<_n; i++) {
+//    	_p[i].frz2=_p[i].frz1;
+//    	
+//    	
+//    	_p[i].frz1.r=_p[i].r;
+//    	_p[i].frz1.u=_p[i].u;
+//    	_p[i].frz1.sigma=_p[i].sigma;
+//    	_p[i].frz1.T=_p[i].EOS.T();
+//    	_p[i].frz1.theta=_p[i].div_u+_p[i].gamma/t;
+//    	_p[i].frz1.gradP=_p[i].gradP;
+//    	}
+//    	taupp=taup;
+//    	taup=tau;
+//    }
+//    cfon=0;
+//}
+//
+//template <int D>
+//void LinkList<D>::interpolate(int curfrz)
+//{
+//	
+//	sFO.resize(curfrz,0);
+//	Tfluc.resize(curfrz,0);
+//	for (int j=0;j<curfrz;j++)
+//	{
+//		int i=list[j];
+//		
+//		int swit=0;
+//		if (abs(_p[i].frz1.T-freezeoutT)<abs(_p[i].frz2.T-freezeoutT)) swit=1;
+//		else swit=2;
+//		
+//		Vector<double,D> gradPsub;
+//		double sigsub,thetasub;
+//		
+//		if (swit==1){
+//			tlist[j]=taup;
+//			rsub[j]=_p[i].frz1.r;
+//			uout[j]=_p[i].frz1.u;		
+//		
+//			gradPsub=_p[i].frz1.gradP;			
+//			sigsub=_p[i].frz1.sigma;
+//			thetasub=_p[i].frz1.theta;
+//			Tfluc[j]=_p[i].frz1.T;
+//		}
+//		else if (swit==2){
+//			tlist[j]=taupp;
+//			rsub[j]=_p[i].frz2.r;
+//			uout[j]=_p[i].frz2.u;
+//			bulksub[j]=_p[i].frz2.bulk;
+//					
+//			gradPsub=_p[i].frz2.gradP;			
+//			sigsub=_p[i].frz2.sigma;
+//			thetasub=_p[i].frz2.theta;
+//			Tfluc[j]=_p[i].frz2.T;
+//		}
+//
+//		
+//		
+//		
+//		gsub[j]=sqrt( Norm2(uout[j]) + 1. );
+//
+//		sigsub/=gsub[j]*tlist[j];
+//		
+//		swsub[j]=_p[i].sigmaweight/sigsub;
+//
+//		
+//		sFO[j]=_p[0].EOS.s_terms_T(Tfluc[j]);
+//    		divT[j]=(1/sFO[j])*gradPsub;
+//    		divTtemp[j]=-(1/(gsub[j]*sFO[j]))*(cs2*wfz*thetasub+inner(uout[j],gradPsub));
+//                 
+//                 
+//              
+//                
+//		double insub=divTtemp[j]*divTtemp[j]-Norm2(divT[j]);
+//		double norm=-sqrt(abs(insub));
+//		divTtemp[j]/=norm;
+//		divT[j]=(1/norm)*divT[j];
+//
+//		avgetasig+=sFO[j]/sigsub;
+//		
+//		sFO[j]*=pow(Tfluc[j]*0.1973,3);
+//		Tfluc[j]*=0.1973;
+//	
+//	}
+//	cf=curfrz;
+//}
 
 
 template <int D>
@@ -753,18 +730,6 @@ void LinkList<D>::freezeset()
 {
 	cs2=_p[0].EOS.cs2out(freezeoutT);
 	wfz=_p[0].EOS.wfz(freezeoutT);
-}
-
-template <int D>
-void LinkList<D>::etas_set()
-{
-
-	for (int i=0; i<_n; i++) {
-    	
-    	_p[i].eta_sigma=_p[i].sigmaweight;
-    	_p[i].sigmaweight=1;
-    	}
-
 }
 
 template <int D>
@@ -1204,137 +1169,6 @@ double LinkList<D>::uy(double t, double x, double y)
 	return sinh(g(t,x,y))*y/sqrt(x*x+y*y);
 }
 
-template <int D>
-void LinkList<D>::gubsershear( double h)
-{
-	t0=1;
-	bvf=0;
-	svf=5.;
-	_h=h;
-	knorm=10/7./PI/(_h*_h);
-	knorm2=knorm*0.25;
-	kgrad=-10/7./PI/pow(_h,3)*3/4.;
-	kgrad2=10/7./PI/pow(_h,3)/_h;
-	number_part=0;
-	step=0.02;
-	
-	string namee="sheartest.dat";
-	string filename = ifolder+namee;
-        FILE * myfile = fopen (filename.c_str(),"r");	
-        
-	int j=0;
-  	if (myfile!= NULL){
-  	   fscanf(myfile,"%i \n",&_n);
-  	   
-           _p= new Particle<D>[_n+1];
-           int i=0;
-           Vector <double,12> in;
-           while (i<=_n){
-           	fscanf(myfile,"%lf    %lf    %lf    %lf    %lf  %lf    %lf    %lf    %lf    %lf     %lf    %lf\n",&in.x[0],&in.x[1],&in.x[2],&in.x[3],&in.x[4],&in.x[5],&in.x[6],&in.x[7],&in.x[8],&in.x[9],&in.x[10],&in.x[11]);
-           	
-           	    	
-           	    _p[i].r.x[0]=in.x[0];
-                    _p[i].r.x[1]=in.x[1];
-                    _p[i].e_sub=in.x[2];
-                    _p[i].u.x[0]=in.x[3];
-                    _p[i].u.x[1]=in.x[4];
-                    _p[i].shv.x[1][1]=in.x[5];
-                    _p[i].shv.x[2][2]=in.x[6];
-                    _p[i].shv.x[1][2]=in.x[7];
-                    _p[i].shv33=in.x[11];
-                    _p[i].eta_sigma  = 1.;
-                    _p[i].Bulk = 0.;
-                    _p[i].sigmaweight  = step*step; //step should be 0.05
-                  
-                    
-		   if (_p[i].e_sub<=(3*0.1973)) cout << i << " " << _p[i].e_sub << endl;
-           	   else  {
-           	   	if (_p[i].e_sub>efcheck) _p[i].Freeze=0;
-                    	else
-                   	{
-                   	_p[i].Freeze=4;
-                   	++number_part;
-                   	}
-           	   	j++;
-           	   }
-
-
-			++i;
-          }
-           
-  	}
-  	else {
-  		cout << "Error: " << filename.c_str() << " does not exist.  Please enter new file name\n";
-  	}	
-	fclose(myfile);
-	cout << filename.c_str() << ": Input sucessful!\n";
-	_n=j;
-	cout << _n << endl;
-        		 	
-      
-	link=new int[_n];
-	dael=new Vector<int,D>[_n];
-
-	initiate();
-
-
-}
-
-template <int D>
-void LinkList<D>::gubser(double h)
-{
-	_h=h;
-	double x0=-8,y0=-8;
-	step=0.05;
-	
-   	double x,y;
-   	int lsize;
-   	int i=0;
-   //	ofstream GIC;
-   //	string gubic ("checkgubIC.dat");
-  //	GIC.open(gubic.c_str());
-   	
-   	lsize=(-2*x0/step+1)*(-2*y0/step+1);
-   	_p= new Particle<D> [lsize];
- 	cout << lsize << endl;
- 	x=x0;
- 	y=y0;
- 	
-        for (int k=0;k<(-2*x0/step+1);k++)
-        {
-        	y=y0;
-        	for (int j=0;j<(-2*y0/step+1);j++)
-        	{
-        		if (x==0&&y==0) continue;
-        		
-        		_p[i].r.x[0]=x;
-        		_p[i].r.x[1]=y;
-        		_p[i].e_sub=eanal2(t0,x,y);
-        		//c*pow(eanal2(1.,x,y),0.75);   
-        		 _p[i].u.x[0]=ux(t0, x, y);  	
-        		 _p[i].u.x[1]=uy(t0, x, y); 
-
-        		 _p[i].eta_sigma  = 1.;	
-        		 _p[i].sigmaweight  = step*step;	
-       // 		GIC << x << "   " << y << "   " << eanal2(1.,x,y) << "   " << _p[i].u << endl;
-        		
-        		
-        		y+=step;
-        		i++;
-        		
-        	}
-        	
-        	x+=step;
-        
-        }
-        _n=i;
-     //   GIC.close();
-	link=new int[_n];
-	dael=new Vector<int,D>[_n];
-
-	initiate();
-
-}
 
 template <int D>
 void LinkList<D>::updateIC()
@@ -1354,77 +1188,7 @@ void LinkList<D>::updateIC()
 	}
 	
 	if (gtyp!=3) guess();
-	else guess2();
 	
-}
-
-template <int D>
-void LinkList<D>::guess2()
-{
-
-	initiate();
-	
-	cout << "smoothing flow" << endl;
-	
-	vector <double> uy0,ux0;
-	uy0.resize(_n);
-	ux0.resize(_n);
-	
-	for (int i=0;i<_n;i++)
-	{
-		double sub,sub2;
-		optint(i,sub,sub2);
-		ux0[i]=sub;
-		uy0[i]=sub2;
-	}
-	
-
-	double tmax=0;
-	Vector<double,D> rmax;
-	for (int j=0;j<D;j++)
-	{
-		rmax.x[j]=0;
-	}
-	
-	
-	int count1=0;
-	
-	for (int i=0;i<_n;i++)
-	{
-		double div2=_p[i].gamma*t0;
-		_p[i].s_sub=_p[i].sigma/div2;
-		
-		_p[i].EOS.update_s(_p[i].s_sub);
-		
-		_p[i].u.x[0]=ux0[i];
-		_p[i].u.x[1]=uy0[i];
-		
-		_p[i].gamma=sqrt( Norm2(_p[i].u) + 1 );
-		
-		
-		_p[i].v.x[0]=ux0[i]/_p[i].gamma;
-		_p[i].v.x[1]=uy0[i]/_p[i].gamma;
-		
-		_p[i].sigsub=0;
-		
-		if (_p[i].EOS.T()>tmax)
-		{
-		
-			tmax=_p[i].EOS.T();
-			
-			rmax=_p[i].r;	
-		}
-		
-		_p[i].frzcheck(t0,count1,_n);
-		
-	}
-	
-	cout << tmax*197.3 << " " << rmax <<endl;
-	
-	uy0.clear();
-	ux0.clear();
-
-  	if (qmf==1) qmflow();
 }
 
 
