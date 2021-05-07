@@ -21,7 +21,6 @@ using namespace std;
 #include "matrix.h"
 
 
-
 char ifolder []="inputfiles/";
 string ofolder ("./outputfiles/");
 double freezeoutT;
@@ -38,7 +37,7 @@ int main (int argc, char *argv[])
 	_inputIC ics;
 
 	ics.man   = "settings.inp";
-	ics.rnum  = 0;
+	ics.rnum  = "0";
 	ics.start = 0;
 	ics.end   = 0;
 	ics.on    = 1;
@@ -59,7 +58,7 @@ int main (int argc, char *argv[])
 		case 3: // shear+bulk
 			svSimulation( ics.dt, linklist );
 			break;
-		default;
+		default:
 			std::cerr << "Error: visc = " << linklist.visc
 				  << " is not a valid option!" << std::endl;
 			break;
