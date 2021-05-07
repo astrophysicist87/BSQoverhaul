@@ -5,7 +5,7 @@
 
 #define sqr(x) ((x)*(x))
 
-#define cube(x) ((x)*(x)*(x))
+//#define cube(x) ((x)*(x)*(x))
 
 #endif
 
