@@ -9,7 +9,6 @@
 
 using namespace std;
 
-//#include SPH.h
 #include "vector.h"
 #include "tables.h"
 #include "particle.h"
@@ -19,18 +18,9 @@ using namespace std;
 #include "output.h"
 
 
-// here the hydro simulation is actually called within the various Simulation subroutines.  First the LinkList is initiated, then the SPH method is used, next we check if any particles have reached freezeout and finally we run Runge Kutta.  The hydro  equations of motion used within Runge Kutta are sent to the function and can be stored in any function you like.  
-
-
-
-
-
 void Simulation(double dt,LinkList<2> &linklist)
 {
 	cout << "Ready to start hydrodynamics\n";
-
-	 
-	// int cc=0; // uncomment for adams method
 	
 	
 	 linklist.frzc=0;
@@ -59,19 +49,13 @@ void Simulation(double dt,LinkList<2> &linklist)
         }
 	
 
-//	out.eprofile(linklist);
 	while ((linklist.t<linklist.tend)&&(linklist.number_part<linklist.n())) {
 		
 		 linklist.cfon=1;
- 	   // adams<2>(dt,cc,&idealhydro3<2>,linklist);  // quicker method, not as accurate	
  	    rungeKutta2<2>(dt,&idealhydro3<2>,linklist);  // slower method, more accurate	
  	    
 	    if (linklist.cf>0) out.FOprint(linklist); // prints out frozen out SPH particles
 	    
-	   
-	   
-
-
  	    //if you add more points to print off you must also change LinkList<D>::setup and multiply steps=floor(tend-t0)+1; by the extra number of print offs / 1fm/c
  
 	    if (linklist.qmf==3){
@@ -93,76 +77,15 @@ void Simulation(double dt,LinkList<2> &linklist)
   	  
   	  
 	}
-	
-//	out.conservation(linklist);
-	
 
 	cout << "done" << endl;
 	linklist.endEV();
-}
-
-void vSimulation(double dt,LinkList<2> &linklist)
-{
-	cout << "Ready to start hydrodynamics\n";
-
-	 
-	 
-	 
-//	 int cc=0; // uncomment for adams method
-
-	 linklist.frzc=0;
-	 linklist.cf=0;	
-	
-	Output<2> out(linklist);
-	
-	linklist.t=linklist.t0;
-	
-	if (linklist.qmf==1){
-	out.eprofile(linklist);
-	cout << "printed first timestep" << endl;}
-	else if(linklist.qmf==4){
-          out.eccout(linklist);
-	  cout << "eccentricity printed" << endl;
-        }
-
-	linklist.Ez=0;
-	while ((linklist.t<linklist.tend)&&(linklist.number_part<linklist.n())) {
-		linklist.cfon=1;
-
-		//vadams<2>(dt,cc,&vischydro3<2>,linklist); // quicker method, not as accurate
- 		vrungeKutta2<2>(dt,&vischydro3<2>,linklist);  // slower method, more accurate
-	    
- 	    if (linklist.cf>0) 
-		{
- 	    out.vFOprint(linklist); // prints off list of frozen out SPH particles
-	   // out.SCprint(linklist); // uncoment to print off entropy conservation
- 	    }
-// 	    double tsub=linklist.t-floor(linklist.t);
- 	    //if you add more points to print, must also change LinkList<D>::setup and multiply steps=floor(tend-t0)+1; by the extra number of print offs / 1fm/c
-// 	    if (tsub<(0.0+dt*0.99)||(tsub>=1-+dt*0.99)) // uncomment if you want to observe energydensity profile, conservation of energy or do a Gubser check
-// 	    {
-//		cout << "t=" << linklist.t <<endl;  // outputs time step
-// 	    	out.eprofile(linklist);   // energy density profile
-//		out.conservation(linklist); // conservation of energy
- 	    	
-// 	    } 		  
-  	  
-  	  
-	}
-//	out.conservation(linklist);
-
-
-	cout << "done" << endl;
-	linklist.endEV();
-	
 }
 
 void svSimulation(double dt,LinkList<2> &linklist)
 {
 	cout << "Ready to start hydrodynamics\n";
 
-	 
-	 
 	
 	 int cc=0;
 	 linklist.frzc=0;
@@ -172,7 +95,6 @@ void svSimulation(double dt,LinkList<2> &linklist)
 	Output<2> out(linklist);
 	
 	linklist.t=linklist.t0;
-//	out.sveprofile(linklist);
 	
 	if (linklist.qmf==1||linklist.qmf==3){
 	  out.sveprofile(linklist);
@@ -187,14 +109,11 @@ void svSimulation(double dt,LinkList<2> &linklist)
 	  exit(0);
         }
 	
-	//out.sveprofile(linklist);
 	linklist.Ez=0;
 	while ((linklist.t<linklist.tend)&&(linklist.number_part<linklist.n())) {
 		linklist.cfon=1;
 		
  		svrungeKutta2<2>(dt,&shear<2>,linklist);
- 		//cout << "t=" << linklist.t <<endl;
-		//	out.sveprofile(linklist);
 	   
  	    if (linklist.cf>0) out.svFOprint(linklist);
  	    
@@ -210,40 +129,6 @@ void svSimulation(double dt,LinkList<2> &linklist)
 	linklist.endEV();
 }
 
-
-void Simulation(double dt,LinkList<3> &linklist)  // setup for 3+1, equation of motion not complete!!!
-{	
-	 double t=0.6;	 
-	 int cc=0;
-
-	
-	Output<3> out(linklist);
-
-	
-	linklist.t=t;
-	idealhydro3<3>(linklist) ;
-	out.eprofile(linklist);
-	
-	
-
-	linklist.Ez=0;
-	while (t<linklist.tend) {
- 	    adams<3>(dt,cc,&idealhydro3<3>,linklist);
- 	    
- 	    
- 	    
- 	    double tsub=linklist.t-floor(linklist.t);
- 	    if ((tsub>0.599)&&(tsub<0.609))
- 	    {
- 	    	
- 	    	out.eprofile(linklist);
- 	    	out.conservation(linklist); 	    	
- 	    }
-  	  
-	}
-	linklist.endEV();
- 
-}
 
 template <int D> 
 void idealhydro3(LinkList<D>  &linklist) // ideal Equations of motion, only set up completely for 2+1 at the moment
@@ -339,142 +224,15 @@ void idealhydro3(LinkList<D>  &linklist) // ideal Equations of motion, only set 
 	}
 	if (linklist.cfon==1) linklist.freezeout(curfrz); // calculates normals from freezeout hypersurface
 	
-	
-	
-	
-	
 	linklist.destroy();
  }
  
-template <int D> 
-void vischydro3(LinkList<D>  &linklist)  // bulk Equations of motion, only set up completely for 2+1 at the moment
-{
-     linklist.initiate();
-     	for(int i=0; i<linklist.n();i++)
-	{
-		linklist.voptimization(i);
-		//		if ((linklist._p[i].eta<0)||isnan(linklist._p[i].eta)) 
-                if (linklist._p[i].eta<0) 
-		{
-			cout << "neg entropy " <<  linklist._p[i].EOS.T()*197.3   << " " << linklist._p[i].eta << endl;
-			
-		
-			//double seta = 0;
-    			Vector<int,D> jj;
-    			int b;
-			for(jj.x[0]=-2; jj.x[0]<=2; jj.x[0]++)
-        		{
-        		for(jj.x[1]=-2; jj.x[1]<=2; jj.x[1]++)
-        		{
 
-                 	b=linklist.lead[linklist.triToSum(linklist.dael[i]+jj, linklist.size)];
-                 	while(b!=-1 )
-                 	{
-                    	if (linklist._p[b].eta_sigma<0) 
-                    	{
-                    	 cout << b << " "   <<linklist._p[b].eta_sigma<< " "  <<  linklist._p[i].EOS.T()*197.3  << " " << linklist._p[i].Bulk << endl;
-                    	 cout << linklist._p[b].tauRelax << " "  <<  linklist._p[i].zeta << endl;
-                    	}
-                   	b=linklist.link[b];
-                 	}
-        		}
-			}
-		
-			exit(1);
-		}
-		
-	}
-	int curfrz=0;
-	for(int i=0; i<linklist.n(); i++) 
-	{
-                 //  Computes gamma and velocity
-                 
-        	linklist._p[i].calc(linklist.t);
-		linklist._p[i].setvisc(linklist.etaconst,linklist.bvf,linklist.svf,linklist.zTc,linklist.sTc,linklist.zwidth,linklist.visc);
-		if (linklist.cfon==1) linklist._p[i].frzcheck(linklist.t,curfrz,linklist.n());
-	}
-	if (linklist.cfon==1)
-	{
-	linklist.number_part+=curfrz;		
-	linklist.list.resize(curfrz);
-	}
-	int m=0;	
-	for(int i=0; i<linklist.n();i++)
-	{	
-		//      Computes gradients to obtain dsigma/dt
-		linklist.voptimization2(i,linklist.t);
-		linklist._p[i].vsigset(linklist.t);
-		if ((linklist._p[i].Freeze==3)&&(linklist.cfon==1)) 
-		{
-			linklist.list[m]=i;
-			linklist._p[i].Freeze=4;
-			++m;
-		}
-			
-	}
-	
-	if (linklist.rk2==1) linklist.vconservation();
-	linklist.vconservation_Ez();
-	
-	
-	
-		//calculate matrix elements		
-	for(int i=0; i<linklist.n();i++)
-	{	
-	
-	
-		// set the Mass and the Force
-		double *M,*F;
-		M=new double[D*D];
-    		F=new double[D];
-		M[0]=linklist._p[i].Agam*linklist._p[i].u.x[0]*linklist._p[i].u.x[0]+linklist._p[i].C*linklist._p[i].gamma;
-		M[3]=linklist._p[i].Agam*linklist._p[i].u.x[1]*linklist._p[i].u.x[1]+linklist._p[i].C*linklist._p[i].gamma;
-		M[1]=linklist._p[i].Agam*linklist._p[i].u.x[0]*linklist._p[i].u.x[1];
-		
-		F[0]=linklist._p[i].Agam2*linklist._p[i].u.x[0]-(linklist._p[i].gradP.x[0]+linklist._p[i].gradBulk.x[0]);
-		F[1]=linklist._p[i].Agam2*linklist._p[i].u.x[1]-(linklist._p[i].gradP.x[1]+linklist._p[i].gradBulk.x[1]);
-		
-		
-		
-		double MI[4];
-		
-		double det=M[0]*M[3]-M[1]*M[1];
-		MI[0]=M[3]/det;
-		MI[1]=-M[1]/det;
-		MI[3]=M[0]/det;
-		linklist._p[i].du_dt.x[0]=F[0]*MI[0]+F[1]*MI[1];
-		linklist._p[i].du_dt.x[1]=F[0]*MI[1]+F[1]*MI[3];
-		
-        	linklist._p[i].div_u = (1./ linklist._p[i].gamma)*inner( linklist._p[i].u, linklist._p[i].du_dt) - ( linklist._p[i].gamma/ linklist._p[i].sigma)* linklist._p[i].dsigma_dt ;
-		linklist._p[i].bigtheta=linklist._p[i].div_u*linklist.t+linklist._p[i].gamma;
-		linklist._p[i].detasigma_dt = -linklist._p[i].bigPI/linklist._p[i].EOS.T()*linklist._p[i].bigtheta/linklist._p[i].sigma;
-        	linklist._p[i].dBulk_dt = (-linklist._p[i].zeta/linklist._p[i].sigma*linklist._p[i].bigtheta - linklist._p[i].Bulk/linklist._p[i].gamma )/linklist._p[i].tauRelax;
-        	
-		delete [] M;
-		delete [] F;
-		
-	}
-	
-	if (linklist.cfon==1) linklist.vfreezeout(curfrz);
-	
-	
-	
-	linklist.destroy();
- }
- 
  template <int D> 
 void shear(LinkList<D>  &linklist)  // shear+bulk Equations of motion, only set up completely for 2+1 at the moment
 {
-
-	
-
-    
      linklist.setshear();
      linklist.initiate();
-
-	
-		
-
      
      	for(int i=0; i<linklist.n();i++)
 	{
@@ -488,29 +246,6 @@ void shear(LinkList<D>  &linklist)  // shear+bulk Equations of motion, only set 
 			
 			linklist._p[i].eta=0;
 
-//			 int a,b;
-//			 a=i;
-//			double sigma = 0.;
-//    			Vector<int,D> ii;
-//			for(ii.x[0]=-2; ii.x[0]<=2; ii.x[0]++)
-//        		{
-//        		for(ii.x[1]=-2; ii.x[1]<=2; ii.x[1]++)
-//        		{
-
-//                 	b=linklist.lead[linklist.triToSum(linklist.dael[a]+ii, linklist.size)];
-//                 	while(b!=-1 )
-//                 	{
-//                 	double kern=linklist.kernel(linklist._p[b].r-linklist._p[a].r);
-//                    	sigma = sigma + linklist._p[b].sigmaweight*kern;
-//			
-//                    	
-//                   	b=linklist.link[b];
-//                   	}
-//        		}
-//			}
-//			cout << "final entropy=" << sigma << " eta_sigma=" << linklist._p[a].eta_sigma << " r=" << linklist._p[a].r << endl;
-//			
-//			exit(1);
 		}
 		
 	}
@@ -578,9 +313,6 @@ void shear(LinkList<D>  &linklist)  // shear+bulk Equations of motion, only set 
 		MI.x[1][1]=M.x[0][0]/det;
 		linklist._p[i].du_dt.x[0]=F.x[0]*MI.x[0][0]+F.x[1]*MI.x[0][1];
 		linklist._p[i].du_dt.x[1]=F.x[0]*MI.x[1][0]+F.x[1]*MI.x[1][1];
-
-		
-
 		
 		Matrix <double,D,D> ulpi=linklist._p[i].u*colp1(0,linklist._p[i].shv);
 
@@ -607,8 +339,6 @@ void shear(LinkList<D>  &linklist)  // shear+bulk Equations of motion, only set 
          	 
 
         	linklist._p[i].dshv_dt= -gamt*(linklist._p[i].pimin+linklist._p[i].setas*0.5*partU)-0.5*linklist._p[i].eta_o_tau*(ududt+transpose(ududt))+linklist._p[i].dpidtsub()-vduk*(ulpi+transpose(ulpi)+(1/linklist._p[i].gamma)*Ipi)+linklist._p[i].sigl*Ipi;
-
-		
 		
 	}
 	

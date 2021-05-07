@@ -52,9 +52,9 @@ int main (int argc, char *argv[])
 		case 0:	// ideal
 			Simulation(   ics.dt, linklist );
 			break;
-		case 1:	// bulk
-			vSimulation(  ics.dt, linklist );
-			break;
+		//case 1:	// bulk
+		//	vSimulation(  ics.dt, linklist );
+		//	break;
 		case 3: // shear+bulk
 			svSimulation( ics.dt, linklist );
 			break;
