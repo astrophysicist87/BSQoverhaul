@@ -1,7 +1,7 @@
 OBJS = main.o vector.o enteric.o hydrosim.o newspline.o random.o eos.o matrix.o
 CC = g++
 DEBUG = -g -std=c++11
-CFLAGS = -Wall -c $(DEBUG)
+CFLAGS = -Wall -Weffc++ -c $(DEBUG)
 LFLAGS = -Wall $(DEBUG)
 
 vusphydro : $(OBJS)

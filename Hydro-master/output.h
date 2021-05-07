@@ -36,45 +36,21 @@ class Output
 		void conservation(LinkList<D> &linklist);
 		void eprofile(LinkList<D> &linklist);
 		void eccout(LinkList<D> &linklist);
-	        double ecc(LinkList<D> &linklist, double  & psi,double & rout , double & Etot, int m,int n);
+	    double ecc(LinkList<D> &linklist, double  & psi,double & rout , double & Etot, int m,int n);
 		void sveprofile(LinkList<D> &linklist);
 		void do_mkdir(const char *path, int mode);
 		void averages(LinkList<D> &linklist);
 		void FOstart(LinkList<D> &linklist);
 		void FOprint(LinkList<D> &linklist);
-		void vFOprint(LinkList<D> &linklist);
 		void svFOprint(LinkList<D> &linklist);
-		void sconstart(LinkList<D> &linklist);
 		void SCprint(LinkList<D> &linklist);
 };
 
 template <int D>
 Output<D>::Output(LinkList<D> &linklist)
 {
-   if (linklist.fcount!=0) 
-   {
-   	cfolder=ofolder+linklist.ebe_folder+("/");
-   	if (linklist.cevent==0) 
-   	{
-   	  if (linklist.fcount!=0) do_mkdir(cfolder.c_str(), 0777);
-          cleardir(linklist);
-        }
-   	cout << "output to:" << cfolder << endl;
-   
-   }
-   
-   if (linklist.average==1) 
-   {
-   	cfolder=ofolder+linklist.ebe_folder+("/");
-   	do_mkdir(cfolder.c_str(), 0777);
-   }
-   
-   
-  countEP=0;
-   FOstart( linklist);
-   if  (linklist.visc==1) sconstart(linklist);
-   
-   
+	countEP = 0;
+	FOstart( linklist );
 }
 
 
@@ -91,15 +67,7 @@ void Output<D>::FOstart(LinkList<D> &linklist)
    	 }   	    	
    	 else if (linklist.fcount==0&&linklist.average!=1)
    	{
-		if (linklist.visc==0)
-   	 	{
-   	 		FOin="freezeout";
-   	 	}
-   	 	else if  (linklist.visc==1)
-   	 	{
-   	 		FOin="bvfreezeout";
-   	 	}
-   	 	else if  (linklist.visc==3)
+		if  (linklist.visc==3)
    	 	{
    	 		FOin="sbvfreezeout";
    	 	}
@@ -108,64 +76,26 @@ void Output<D>::FOstart(LinkList<D> &linklist)
    	 }
    	 else
    	 {
-   	 	
    	 	string under ("_ev");
    	 	string even;
    	 	even=convertInt(linklist.fnum);
-   	 	if (linklist.visc==0)
-   	 	{
-   	 		FOin="freezeout";
-   	 	}
-   	 	else if  (linklist.visc==1)
-   	 	{
-   	 		FOin="bvfreezeout";
-   	 	}
-   	 	else if  (linklist.visc==3)
+   	 	if (linklist.visc==3)
    	 	{
    	 		FOin="sbvfreezeout";
    	 	}
    	 	
-   	 	
    	 	FOname=cfolder+FOin+under+even+".dat";
    	 }
-   	 
-   	 
-   	
-   	
+
   	FO.open(FOname.c_str());
   	if (!FO.is_open())
 	{
-		
 		cout << "Error: cannot open E_S_conserv.dat file!" << endl;
 		exit(1);
 	}
 	
   	FO.close();
   	
-  	
-}
-
-template <int D>
-void Output<D>::sconstart(LinkList<D> &linklist)
-{
-   	Scons=cfolder+"scons.dat";
-
-	if (linklist.fcount!=0&&linklist.average!=1)
-	{
-	 string even;
-   	 even=convertInt(linklist.fnum);
-	 Scons=cfolder+"scons"+even+".dat";
-	}
-   	
-  	SC.open(Scons.c_str());
-  	if (!SC.is_open())
-	{
-		
-		cout << "Error: cannot open scons.dat file!" << endl;
-		exit(1);
-	}
-	
-  	SC.close();
 }
 
 
