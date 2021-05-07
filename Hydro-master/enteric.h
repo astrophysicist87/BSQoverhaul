@@ -74,11 +74,9 @@ void manualenter(_inputIC &ics, LinkList<D> &linklist)
   	   	fscanf(openmanf,"%*s %s\n",charin3);  	   
   	   	low_switch=charin3;
   	   }
-  	   if (fvisc!=ideal){ //if not ideal, define eta/s and zeta/s format
   	   fscanf(openmanf,"%*s %i \n",&linklist.etaconst); //if 1, eta/s const, else temp dependent
   	   if (linklist.etaconst!=1) fscanf(openmanf,"%*s %lf  %lf  %lf \n",&linklist.zwidth,&linklist.sTc,&linklist.zTc); // guassian width zeta/s, eta/s T_c, zeta/s T_c
-	   fscanf(openmanf,"%*s %lf %lf \n",&linklist.bvf,&linklist.svf);  } // constant multiplying factor for zeta/s
-	   //	   cout << linklist.bvf << " " << linklist.svf <<endl;
+	   fscanf(openmanf,"%*s %lf %lf \n",&linklist.bvf,&linklist.svf);
 	   fscanf(openmanf,"%*s %lf \n",&it0);  
 	   fscanf(openmanf,"%*s %lf \n",&freezeoutT); 		    
 	   freezeoutT/=197.3; 
@@ -92,16 +90,12 @@ void manualenter(_inputIC &ics, LinkList<D> &linklist)
   	
   	  
   	   
-  	   if (ictype!=bjorken)
-  	   {
   	   if (ictype==trento)
   	   {
   	   	fscanf(openmanf,"%lf \n",&factor);  
   	   	linklist.factor=factor;
   	   	
         }
-  	   
-  	  
   	   
   	   fscanf(openmanf,"%*s %s \n",charin);  	   
   	   ic=charin;
@@ -130,8 +124,6 @@ void manualenter(_inputIC &ics, LinkList<D> &linklist)
            }
            
 	   //           cout << "Event # " << linklist.start << " with fac="<< factor << endl;           
-  	   
-           }
            fscanf(openmanf,"%*s %i \n",&df);  
            if (df!=0) // for df, analytical solution - no decays
   	   {
@@ -278,76 +270,6 @@ void manualenter(_inputIC &ics, LinkList<D> &linklist)
 		linklist._p[i].start(eostype);
 	}
 	
-	if (ictype==weight)
-   	{
-
-   		linklist.initiate();
-   		double tmax=0;
-   		int imax,k;
-		Vector<double,D> rmax;
-		for (int j=0;j<D;j++)
-		{
-			rmax.x[j]=0;
-		}
-		for (int i=0;i<linklist.n();i++)
-		{
-		linklist._p[i].gamma=linklist._p[i].gamcalc();
-		}
-		
-		k=linklist.n();
-		
-		for (int i=0;i<linklist.n();i++)
-		{
-		
-			//linklist._p[i].u.x[0]=0.5*_p[i].r.x[0]/linklist.t0;  
-			//linklist._p[i].u.x[1]=_p[i].r.x[1]/linklist.t0; 
-			linklist._p[i].u.x[0]=0;  
-			linklist._p[i].u.x[1]=0; 
-			linklist._p[i].gamma=linklist._p[i].gamcalc();
-			//_p[i].Bulk=0.05;
-
-			
-			linklist.optimization(i);
-			
-			linklist._p[i].EOS.update_s(linklist._p[i].sigma/linklist._p[i].gamma/linklist.t0);
-
-			linklist._p[i].shv.x[1][1]= 0 ; 
-			linklist._p[i].shv.x[2][2]=0 ; 
-			linklist._p[i].shv.x[1][2]=0;
-			linklist._p[i].shv.x[2][1]=0;
-		//	linklist._p[i].shv.x[1][2]=0.1*svf*0.08*linklist._p[i].EOS.s()/(3*linklist.t0); 
-			//linklist._p[i].shv.x[2][1]=0.1*svf*0.08*linklist._p[i].EOS.s()/(3*linklist.t0);  
-				
-				
-			if (linklist._p[i].EOS.T()>tmax)
-			{
-			tmax=linklist._p[i].EOS.T();
-			rmax=linklist._p[i].r;
-			imax=i;
-			}
-			
-			numpart=0;
-			if (linklist._p[i].EOS.T()>freezeoutT)	
-			{
-			 linklist._p[i].Freeze=0;
-			}
-			else 
-			{
-			 linklist._p[i].Freeze=4;
-			 numpart++;
-			 k--;
-			}
-			
-		}
-		
-		
-		linklist.number_part=numpart;
-		cout << "largest temperature" << endl;
-		cout << tmax*197.3 << " " << std::setprecision(20) << rmax << " " << linklist._p[imax].EOS.e() << endl;
-		cout << "pre-n=" << linklist.n() << " post-n=" << k << endl;
-		
-    }
-    
    
 	if (ictype==trento)
    {
