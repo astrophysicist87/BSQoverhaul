@@ -368,34 +368,6 @@ void Output<D>::FOprint(LinkList<D> &linklist)
   	
 }
 
-template <int D>
-void Output<D>::vFOprint(LinkList<D> &linklist)
-{ 	
-
-  	FO.open(FOname.c_str(), ios::out | ios::app );
-  	for (int i=0;i< linklist.cf;i++)
-  	{
-  	FO <<  linklist.divTtemp[i] << " " << linklist.divT[i] << " " << linklist.gsub[i] << " " << linklist.uout[i] << " " << linklist.swsub[i] <<   " " << linklist.bulksub[i]  << " " <<   linklist.tlist[i] <<  " " << linklist.rsub[i] <<  " " << linklist.sFO[i] <<  " " << linklist.Tfluc[i] << endl;
-	}
-  	FO.close();
-  	
-  	delete [] linklist.divTtemp;
-  	delete [] linklist.divT;
-  	delete [] linklist.gsub;
-  	delete [] linklist.uout;
-  	delete [] linklist.rsub;
-  	delete [] linklist.tlist;
-  	delete [] linklist.bulksub;
-  	
-  	if (FO.is_open())
-  	{
-  		cout << "error: still open" << endl;
- 		exit(1);
-  	}
-  	
-  	
-}
-
 
 template <int D>
 void Output<D>::svFOprint(LinkList<D> &linklist)
