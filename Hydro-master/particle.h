@@ -340,18 +340,7 @@ void Particle<D>::setvisc(int etaconst,double bvf, double svf, double zTc, doubl
 	//check variables!!!!
 
 	if (type==1) // bulk viscosity
-	{
-		
-		
-		//double cscheck=EOS.cs2out(EOS.T());
-		//zeta = bvf*0.5*zconst*(1/3.-cscheck);
-		//zeta=-0.0295874+4.22749/sqrt(522.496+pow(-182.807+temp,2.))+5.09207833442629*pow(10,-7)*temp*temp;
-		
-		//double cscheck=EOS.cs2out(EOS.T());
-		
-		//double sig=5;
-		//double mf=2.0768;
-		
+	{		
 		double temp=EOS.T()*197.3;
 		zeta =bvf/(sig*sqrt(2*PI))*exp(-pow(temp-zTc,2)/(2.*sig*sig));
               	zeta*=EOS.s();
@@ -380,17 +369,6 @@ void Particle<D>::setvisc(int etaconst,double bvf, double svf, double zTc, doubl
 		}
 		else { // eta/s (T)
 	
-			
-		
-//	       	if( temp>TC){
-//            	setas = svf*EOS.s()*(-0.289 + 0.288*temp + 0.0818*temp*temp);
-//        	}
-//        	else {
-//            	setas = svf*EOS.s()*(0.681 - 0.0594*temp - 0.544 *temp*temp);
-//        	}	
-//		if (setas<0.01) setas=0.001;
-
-
 		if (etaconst==5){
 			double TC=173.9; // 173.9/197.3
 			double temp=EOS.T()*197.3/TC;
@@ -464,15 +442,8 @@ void Particle<D>::setvisc(int etaconst,double bvf, double svf, double zTc, doubl
 		}
 		else
 		{
-		//bvf=5 and sig=2.1 for thin peak
-		
-//		zeta =bvf/(sig*sqrt(2*PI))*exp(-pow(temp-zTc,2)/(2.*sig*sig));
-//		
-//		tauRelax =9*zeta/(EOS.e()-3*EOS.p());
 
 		double t2=temp/zTc;
-//		zeta=0.01162/sqrt(pow((t2-1.104),2)+ 0.0569777  )+  -0.1081/(t2*t2+23.7169);
-//		tauRelax =5*(-0.0506*sTc/(temp*temp) + 10.453/(temp*sqrt(0.156658+pow((temp/sTc-1.131),2) )) );
 		double min1=t2-1;
 		if (t2>1.05) zeta=0.9*exp(-min1/0.025)+0.25*exp(-min1/0.13)+0.001;
 		else if (t2<0.995) zeta=0.9*exp(min1/0.0025)+0.22*exp(min1/0.022)+0.03;
@@ -500,49 +471,7 @@ void Particle<D>::setvisc(int etaconst,double bvf, double svf, double zTc, doubl
 
 	}
 	
-	
-	
-
-		//stauRelax=1.5*setas/(EOS.e()+EOS.p()); // For TECHQM
-		//stauRelax=2.5*setas/(EOS.e()+EOS.p()); // for gubser
-	
-	
-	
-		// definitions for zeta/s, tau_R bulk, eta/s, and tau_R shear
-		// Boltzmann
-		
-        //  Low Bulk viscosity with constant eta/s
-	// AdS
-//              double cscheck=EOS.cs2out(EOS.T());
-              //zeta = 2*zconst*(1/3.-cscheck);
-//              double TC=200/197.3;	
-//		double temp=EOS.T()/TC;
-//	       	if( temp>TC){
-//            	setas = EOS.s()*(-0.289 + 0.288*temp + 0.0818*temp*temp);
-//        	}
-//        	else {
-//            	setas = EOS.s()*(0.681 - 0.0594*temp - 0.544 *temp*temp);
-//        	}
-//		//zeta= EOS.s()* 15*setas*pow((1/3.-cscheck),2);
-//		tauRelax = 9.*zeta/(EOS.e()-3*EOS.p());		
-//		stauRelax=5*setas/EOS.w();
-            
-//             setas = EOS.s()/4./PI;
-//        	stauRelax=5*setas/EOS.w();
-          //  tauRelax = 5.*zeta/EOS.w();
-//               zeta = 0.000;
-            //  zeta*=EOS.s();
-//              tauRelax =1.;
-//              setas =2.*0.08;
- 		//setas =0.0;
-//              setas*=EOS.s();
-//              stauRelax=0.75*setas/2./EOS.p();
-     // stauRelax=1;
-
-        
-        
-       
-        
+	  
 }
 
 template <int D>
