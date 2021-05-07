@@ -80,18 +80,12 @@ void Simulation(double dt,LinkList<2> &linklist)
  	    {
 		cout << "t=" << linklist.t <<endl;  // outputs time step
  	    	out.eprofile(linklist);   // energy density profile
-//		out.conservation(linklist); // conservation of energy
-//		out.gubcheckux(linklist); // gubser test
-//		out.gubcheckuy(linklist); // gubser test
  	    	
  	    } 	
  	    else if ((tsub<(0.5+dt*0.5))&&(tsub>=(0.5-+dt*0.5))) // uncomment if you want to observe energydensity profile, conservation of energy or do a Gubser check
  	    {
 		cout << "t=" <<  linklist.t <<endl;  // outputs time step
  	    	out.eprofile(linklist);   // energy density profile
-//		out.conservation(linklist); // conservation of energy
-//		out.gubcheckux(linklist); // gubser test
-//		out.gubcheckuy(linklist); // gubser test
  	    	
  	    }   
 
@@ -208,57 +202,9 @@ void svSimulation(double dt,LinkList<2> &linklist)
  	    double tsub=linklist.t-floor(linklist.t);
 	    cout << "t=" << linklist.t <<endl;                                                                         
 	          out.sveprofile(linklist);
- 	   // if you add more points to print, must also change LinkList<D>::setup and multiply steps=floor(tend-t0)+1; by the extra number of print offs / 1fm/c
-	    //	       if (tsub<(0.0+dt*0.99)||(tsub>=1-+dt*0.99)) // uncomment if you want to observe energydensity profile, conservation of energy or do a Gubser check
- 	    //{
-	    //linklist.conservation_entropy();
-	    //	cout << "t=" << linklist.t << " S=" << linklist.S << endl;  // outputs time step
- 	    //	out.sveprofile(linklist);   // energy density profile
- 	    	
-		//out.conservation(linklist); // conservation of energy
- 	    	
- 	    //} 	
-// 	    else if ((tsub<(0.2+dt*0.5))&&(tsub>=(0.2-+dt*0.5))) // uncomment if you want to observe energydensity profile, conservation of energy or do a Gubser check
-// 	    {
-//		cout << "t=" <<  linklist.t <<endl;  // outputs time step
-// 	    	out.sveprofile(linklist);   // energy density profile
-////		out.conservation(linklist); // conservation of energy
-////		out.gubcheckux(linklist); // gubser test
-////		out.gubcheckuy(linklist); // gubser test
-// 	    	
-// 	    }  
-// 	    else if ((tsub<(0.4+dt*0.5))&&(tsub>=(0.4-+dt*0.5))) // uncomment if you want to observe energydensity profile, conservation of energy or do a Gubser check
-// 	    {
-//		cout << "t=" <<  linklist.t <<endl;  // outputs time step
-// 	    	out.sveprofile(linklist);   // energy density profile
-////		out.conservation(linklist); // conservation of energy
-////		out.gubcheckux(linklist); // gubser test
-////		out.gubcheckuy(linklist); // gubser test
-// 	    	
-// 	    }  
- 	    //else if ((tsub<(0.5+dt*0.5))&&(tsub>=(0.5-+dt*0.5))) // uncomment if you want to observe energydensity profile, conservation of energy or do a Gubser check
-		// {
-		//cout << "t=" <<  linklist.t <<endl;  // outputs time step
- 	    	//out.sveprofile(linklist);   // energy density profile
-//		out.conservation(linklist); // conservation of energy
-//		out.gubcheckux(linklist); // gubser test
-//		out.gubcheckuy(linklist); // gubser test
- 	    	
- 	    //} 
-// 	    else if ((tsub<(0.8+dt*0.5))&&(tsub>=(0.8-+dt*0.5))) // uncomment if you want to observe energydensity profile, conservation of energy or do a Gubser check
-// 	    {
-//		cout << "t=" <<  linklist.t <<endl;  // outputs time step
-// 	    	out.sveprofile(linklist);   // energy density profile
-////		out.conservation(linklist); // conservation of energy
-////		out.gubcheckux(linklist); // gubser test
-////		out.gubcheckuy(linklist); // gubser test
-// 	    	
-// 	    }    
-  	  
 	    }
   	  
 	}
-	//out.conservation(linklist,pcount);
 
 	
 	linklist.endEV();
@@ -291,10 +237,7 @@ void Simulation(double dt,LinkList<3> &linklist)  // setup for 3+1, equation of 
  	    {
  	    	
  	    	out.eprofile(linklist);
- 	    	out.conservation(linklist);
- 	    	out.gubcheckux(linklist);
-	    	out.gubcheckuy(linklist);
- 	    	
+ 	    	out.conservation(linklist); 	    	
  	    }
   	  
 	}
